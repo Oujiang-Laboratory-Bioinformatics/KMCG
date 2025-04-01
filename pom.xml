@@ -117,7 +117,6 @@
                         <configuration>
                             <mainClass>com.apply.kmcg.Entrypoint</mainClass>
                             <bundleJre>true</bundleJre>
-                            <bundleJre>true</bundleJre>
                             <customizedJre>false</customizedJre>
                             <linuxConfig>
                                 <generateAppImage>true</generateAppImage>
