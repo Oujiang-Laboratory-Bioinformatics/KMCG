@@ -117,6 +117,18 @@
                         <configuration>
                             <mainClass>com.apply.kmcg.Entrypoint</mainClass>
                             <bundleJre>true</bundleJre>
+                            <bundleJre>true</bundleJre>
+                            <customizedJre>false</customizedJre>
+                            <linuxConfig>
+                                <generateAppImage>true</generateAppImage>
+                                <generateDeb>false</generateDeb>
+                                <generateRpm>false</generateRpm>
+                            </linuxConfig>
+                            <macConfig>
+                                <appId>com.apply.KMCG</appId>
+                                <generateDmg>true</generateDmg>
+                                <generatePkg>false</generatePkg>
+                            <macConfig>
                         </configuration>
                     </execution>
                 </executions>
