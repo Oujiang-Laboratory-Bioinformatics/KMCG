@@ -128,7 +128,12 @@
                                 <appId>com.apply.KMCG</appId>
                                 <generateDmg>true</generateDmg>
                                 <generatePkg>false</generatePkg>
-                            <macConfig>
+                            </macConfig>
+                            <winConfig>
+                                <generateExe>true</generateExe>
+                                <generateMsi>false</generateMsi>
+                                <generateMsm>false</generateMsm>
+                            </winConfig>
                         </configuration>
                     </execution>
                 </executions>
