@@ -130,7 +130,7 @@
                                 <generatePkg>false</generatePkg>
                             </macConfig>
                             <winConfig>
-                                <generateExe>true</generateExe>
+                                <generateSetup>true</generateSetup>
                                 <generateMsi>false</generateMsi>
                                 <generateMsm>false</generateMsm>
                             </winConfig>
