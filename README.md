@@ -27,7 +27,7 @@ cd KMCG
 ```
 
 ### Compile
-The compiled statements should run in the KMCG folder path！
+The commands should be run within the KMCG directory path.
 ```
 cd ./KMCG
 
