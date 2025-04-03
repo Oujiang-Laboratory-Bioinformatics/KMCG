@@ -11,9 +11,9 @@ However, processed data can be visualized by KMGC viewer, which is a JAVA-based 
 
 ## Dependency
   * [KMC 3.2](https://github.com/refresh-bio/KMC) 
-  * Java run time environment (JRE)
+  * Java run time environment (JRE) 11 or higher
   * Samtools
-  * gcc 10.2.0 or higher
+  * gcc 11.1.0 or higher
 
 ## Installation
 ### KMC
