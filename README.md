@@ -17,7 +17,7 @@ However, processed data can be visualized by KMGC viewer, which is a JAVA-based 
 
 ## Installation
 ### KMC
-Download [KMC](https://github.com/refresh-bio/KMC) from website, install the pipeline. Get working KMC in your `PATH`. 
+Download  REFRESH's [KMC](https://github.com/refresh-bio/KMC) from the website, install the pipeline. Get working KMC in your `PATH`. 
 ### KMCG
 Download C++ source code.
 ```
