@@ -50,3 +50,14 @@ cd KMCG
 ./KMCG [parameters] <KMC file prefix of raw data> <KMC file prefix of assembly> <Reference genome.fa> <Reference genome.fa.fai> <output> 
 -xstep1 -ystep1  -p1 -t1000
 ```
+
+## KMCG Viewer Usage
+To visualize the KMCG output data, you can use the KMCG Viewer，including Windows:
+
+1.Download the Windows version package win_kmcg_viewer-dist.zip
+2.Unzip the package to your preferred location
+3.Open Command Prompt and navigate to the bin directory inside the unzipped folder:
+```
+cd to/path/bin
+kmcg_viewer.bat
+```
