@@ -27,8 +27,13 @@ cd KMCG
 ```
 
 ### Compile
+The compiled statements should run in the KMCG folder path！
+```
+cd ./KMCG
 
+g++ -I ./FM-index/FM-Index-master/libcds/includes/ -I ./FM-index/FM-Index-master/libdivsufsort/include/ -W -Wall -O3 -o kmcg kmcg1.0.cpp kmc_file.cpp  nc_utils.cpp  kmer_api.cpp  kmer_defs.h mmer.cpp ./FM-index/FM-Index-master/libfmindex.a ./FM-index/FM-Index-master/libdivsufsort/lib/libdivsufsort.a ./FM-index/FM-Index-master/libcds/lib/libcds.a
 
+```
 ## Run
 ```
 ./KMCG [parameters] <KMC file prefix of raw data> <KMC file prefix of assembly> <Reference genome.fa> <Reference genome.fa.fai> <output> 
