@@ -52,12 +52,23 @@ cd KMCG
 ```
 
 ## KMCG Viewer Usage
-To visualize the KMCG output data, you can use the KMCG Viewer，including Windows:
 
-1.Download the Windows version package win_kmcg_viewer-dist.zip
-2.Unzip the package to your preferred location
+
+To visualize the KMCG output data, you can use the KMCG Viewer
+
+### Windows Version
+
+1.Download the Windows version package win_kmcg_viewer-dist.zip.
+
+2.Unzip the package to your preferred location.
+
 3.Open Command Prompt and navigate to the bin directory inside the unzipped folder:
 ```
 cd to/path/bin
 kmcg_viewer.bat
 ```
+
+### Linux Version
+
+
+### MacOS Version
