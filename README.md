@@ -42,7 +42,7 @@ cd KMCG
 
 -p Sampling rate,-p10 means choose one for every 10 kmers.
 
--scr Specify a segment and see the area it affects on the KMCG map.If the segment is chromosome 6 from 5M to 6M,example：-scrcchromosome6:5.0-6.0
+-scr Specify a segment and see the area it affects on the KMCG map.If the segment you want to see is chromosome 6 from 5M to 6M,example：-scrcchromosome6:5.0-6.0
 
 
 ## Run
