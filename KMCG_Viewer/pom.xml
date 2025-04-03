@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>com.apply</groupId>
+  <artifactId>KMCG</artifactId>
+  <version>1.0-SNAPSHOT</version>
+  <name>KMCG</name>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <junit.version>5.10.2</junit.version>
+    <javafx.version>23.0.1</javafx.version>
+    <maven.compiler.release>23</maven.compiler.release> <!-- 使用 release 替代 source/target -->
+  </properties>
+
+  <dependencies>
+    <!-- JavaFX 依赖 -->
+    <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-controls</artifactId>
+      <version>${javafx.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-fxml</artifactId>
+      <version>${javafx.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-web</artifactId>
+      <version>${javafx.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-swing</artifactId>
+      <version>${javafx.version}</version>
+    </dependency>
+    
+    <!-- 第三方库（确保兼容模块化） -->
+    <dependency>
+      <groupId>org.controlsfx</groupId>
+      <artifactId>controlsfx</artifactId>
+      <version>11.2.1</version>
+    </dependency>
+    <dependency>
+      <groupId>com.dlsc.formsfx</groupId>
+      <artifactId>formsfx-core</artifactId>
+      <version>11.6.0</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.openjfx</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>net.synedra</groupId>
+      <artifactId>validatorfx</artifactId>
+      <version>0.5.0</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.openjfx</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.kordamp.ikonli</groupId>
+      <artifactId>ikonli-javafx</artifactId>
+      <version>12.3.1</version>
+    </dependency>
+    <dependency>
+      <groupId>org.kordamp.bootstrapfx</groupId>
+      <artifactId>bootstrapfx-core</artifactId>
+      <version>0.4.0</version>
+    </dependency>
+    <dependency>
+      <groupId>eu.hansolo</groupId>
+      <artifactId>tilesfx</artifactId>
+      <version>21.0.3</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.openjfx</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    
+    <!-- 测试依赖 -->
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-api</artifactId>
+      <version>${junit.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-engine</artifactId>
+      <version>${junit.version}</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <!-- 1. 编译器插件（支持模块化） -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.13.0</version>
+        <configuration>
+          <release>23</release> <!-- 替代 source/target -->
+          <compilerArgs>
+            <arg>-Xlint:all</arg>
+          </compilerArgs>
+        </configuration>
+      </plugin>
+
+      <!-- 2. JavaFX 插件（核心：启用 jlink 打包） -->
+      <plugin>
+        <groupId>org.openjfx</groupId>
+        <artifactId>javafx-maven-plugin</artifactId>
+        <version>0.0.8</version>
+        <executions>
+          <execution>
+            <id>create-runtime-image</id>
+            <phase>package</phase>
+            <goals>
+              <goal>jlink</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <mainClass>com.apply.kmcg/com.apply.kmcg.MainApp</mainClass> <!-- 模块名/主类 -->
+          <launcher>kmcg_viewer</launcher> <!-- 生成的启动脚本名称 -->
+          <jlinkZipName>kmcg-dist</jlinkZipName> <!-- 最终生成的 ZIP 名称 -->
+          <jlinkImageName>kmcg_viewer-runtime</jlinkImageName> <!-- 运行时目录名称 -->
+          <noManPages>true</noManPages>
+          <stripDebug>true</stripDebug>
+          <compress>2</compress>
+          <winShortcut>true</winShortcut>
+          <winMenu>true</winMenu>
+          <verbose>true</verbose>
+          <!-- 包含的模块列表 -->
+          <addModules>
+            javafx.controls,javafx.fxml,javafx.web,javafx.swing
+          </addModules>
+          <!-- 排除不必要的模块以减小体积 -->
+          <jlinkArgs>
+            <arg>--exclude-modules</arg>
+            <arg>jdk.unsupported,jdk.scripting.nashorn</arg>
+          </jlinkArgs>
+        </configuration>
+      </plugin>
+
+      <!-- 3. 资源处理插件（可选） -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-resources-plugin</artifactId>
+        <version>3.3.1</version>
+        <configuration>
+          <encoding>UTF-8</encoding>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>
