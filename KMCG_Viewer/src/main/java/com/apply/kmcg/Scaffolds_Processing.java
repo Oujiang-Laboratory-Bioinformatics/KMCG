@@ -8,8 +8,6 @@ import javafx.scene.paint.Color;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.apply.kmcg.MainController.*;
-
 public class Scaffolds_Processing {
 
     private Tooltip currentTooltip;
@@ -25,8 +23,6 @@ public class Scaffolds_Processing {
         int totalScaffoldSum = tabData.getTotalScaffoldSum();
         this.max_ratio = (double) maxValidvalue / totalScaffoldSum;
 
-        double Marginx_KMCG = 100.0;
-        double Marginy_KMCG = 15.0;
         double scaleX = 1;
         double scaleY = 2;
         double colorBarHeight = 40;
@@ -107,7 +103,6 @@ public class Scaffolds_Processing {
             double scaleBarX, double scaleBarY, int scaleCount,
             double canvasWidth) {
         double centeredColorBarX = (canvasWidth - colorBarWidth) / 2;
-        double centeredScaleBarX = centeredColorBarX;
 
         for (int i = 0; i < colorBarWidth; i++) {
             double ratio = (double) i / colorBarWidth;
@@ -202,7 +197,7 @@ public class Scaffolds_Processing {
             showCoordinates(dataCanvas, mouseX, mouseY, xCoord, yCoord, displayValue);
         });
 
-        dataCanvas.setOnMouseExited(event -> {
+        dataCanvas.setOnMouseExited(_ -> {
             if (currentTooltip != null) {
                 currentTooltip.hide();
             }

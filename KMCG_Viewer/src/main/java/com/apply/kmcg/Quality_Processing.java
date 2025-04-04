@@ -283,10 +283,4 @@ public class Quality_Processing {
         gc.strokeLine(xStart, yPositionFor50, canvasWidth - 50 + 500, yPositionFor50); // 画虚线
         gc.setLineDashes(0); // 空数组表示实线
     }
-
-    // 检查一个数字是否是2的幂次方
-    private static boolean isPowerOfTwo(int n) {
-        return (n > 0) && ((n & (n - 1)) == 0);
-    }
-
 }

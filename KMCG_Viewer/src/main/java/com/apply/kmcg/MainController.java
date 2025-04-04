@@ -11,7 +11,6 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.shape.Rectangle;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -115,7 +114,6 @@ public class MainController {
         tabKMer.setOnClosed(event -> isTabKMerClosed = true);
         // 默认图片
         KMCG_Processing.showDefaultImage(KMCGCanvas);
-        KMCG_Processing kmerProcessing = new KMCG_Processing(KmerCanvas);
         // 初始化时隐藏按钮
         magnificationButton.setVisible(false);
     }

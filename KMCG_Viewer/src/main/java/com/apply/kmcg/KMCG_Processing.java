@@ -52,7 +52,7 @@ public class KMCG_Processing {
     // HashMap<>();
     // 构造函数接收 Canvas 实例
     public KMCG_Processing(Canvas kmerCanvas) {
-        this.kmerCanvas = kmerCanvas;
+        KMCG_Processing.kmerCanvas = kmerCanvas;
     }
 
     public static List<List<Integer>> readFile(String filepath) {
