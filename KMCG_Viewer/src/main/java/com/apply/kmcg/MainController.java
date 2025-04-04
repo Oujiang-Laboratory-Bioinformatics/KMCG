@@ -23,23 +23,22 @@ import static com.apply.kmcg.KMCG_Processing.*;
 public class MainController {
 
     @FXML
-    private TabPane tabPane;  // TabPane 控件
+    private TabPane tabPane; // TabPane 控件
     @FXML
-    private Tab tabKMCG;  // KMCG 标签页
+    private Tab tabKMCG; // KMCG 标签页
     @FXML
-    private Button magnificationButton;  // 放大按钮
+    private Button magnificationButton; // 放大按钮
     // 添加一个布尔变量来跟踪放大功能的启用状态
     private boolean isMagnificationEnabled = false;
-
 
     // 处理放大按钮的点击事件
     @FXML
     public void handleMagnificationButton() {
-        isMagnificationEnabled = !isMagnificationEnabled;  // 切换放大功能的启用状态
+        isMagnificationEnabled = !isMagnificationEnabled; // 切换放大功能的启用状态
         if (isMagnificationEnabled) {
             magnificationButton.setText("\uD83D\uDEAB");
-            magnificationButton.setStyle("");  // 清空样式，恢复默认状态
-            magnificationButton.setStyle("-fx-font-size: 15px;");  // 清空样式，恢复默认状态
+            magnificationButton.setStyle(""); // 清空样式，恢复默认状态
+            magnificationButton.setStyle("-fx-font-size: 15px;"); // 清空样式，恢复默认状态
         } else {
             magnificationButton.setText("🔍");
             magnificationButton.setStyle("-fx-font-size: 15px;");
@@ -49,14 +48,13 @@ public class MainController {
         }
     }
 
-
     @FXML
-    private Tab tabKMer;  // K-mer 标签页
+    private Tab tabKMer; // K-mer 标签页
 
     public static boolean isTabKMCGClosed = false;
     public static boolean isTabKMerClosed = false;
 
-    //数据第一行
+    // 数据第一行
     public static String Filename;
     public static int KMCG_canvas_height;
     public static int KMCG_canvas_width;
@@ -70,24 +68,24 @@ public class MainController {
     public static List<Integer> lengths = new ArrayList<>();
     public static List<double[]> pointsInside = new ArrayList<>();
     public static int totalKmcgSum = 0;
-    //质量图
+    // 质量图
     public static List<List<Integer>> targetData = new ArrayList<>();
     public static List<List<Double>> brokenlineData = new ArrayList<>();
     public static List<String> quality_indication = new ArrayList<>();
-
 
     // 显示数据
     public static Tooltip currentTooltip = null;
 
     public static int totalScaffoldSum = 0;
     public static double max_ratio;
+
     @FXML
     public void handleKMCGTab() {
         if (isTabKMCGClosed) {
             isTabKMCGClosed = false;
         }
         tabKMCG.setDisable(false);
-        tabPane.getSelectionModel().select(tabKMCG);  // 选中 TabKMCG
+        tabPane.getSelectionModel().select(tabKMCG); // 选中 TabKMCG
     }
 
     // 处理“查看 K-mer”选项卡的点击事件
@@ -97,17 +95,17 @@ public class MainController {
             isTabKMerClosed = false;
         }
         tabKMer.setDisable(false);
-        tabPane.getSelectionModel().select(tabKMer);  // 选中 TabKMer
+        tabPane.getSelectionModel().select(tabKMer); // 选中 TabKMer
     }
 
     @FXML
-    private Canvas KMCGCanvas;  // 画KMCGCanvas
+    private Canvas KMCGCanvas; // 画KMCGCanvas
 
     @FXML
-    private Canvas KmerCanvas;  // 画KmerCanvas
+    private Canvas KmerCanvas; // 画KmerCanvas
 
     @FXML
-    private Canvas qualityCanvas;  // 画curveCanvas
+    private Canvas qualityCanvas; // 画curveCanvas
 
     // 在初始化时显示默认图片
     @FXML
@@ -127,7 +125,8 @@ public class MainController {
     public void handleOpenFile() {
         // 创建文件选择器
         FileChooser fileChooser = new FileChooser();
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Text Files", "*.txt", "*.csv", "*.json", "*.*"));
+        fileChooser.getExtensionFilters()
+                .add(new FileChooser.ExtensionFilter("Text Files", "*.txt", "*.csv", "*.json", "*.*"));
         // 打开文件选择对话框
         File file = fileChooser.showOpenDialog(new Stage());
 
@@ -138,11 +137,10 @@ public class MainController {
 
             List<List<Integer>> kmcgdata = KMCG_Processing.readFile(filepath);
 
-
-// 计算总KMCG sum
+            // 计算总KMCG sum
             for (List<Integer> row : kmcgdata) {
                 for (Integer value : row) {
-                    if (value != null) {  // 避免 null 值
+                    if (value != null) { // 避免 null 值
                         totalKmcgSum += value;
                     }
                 }
@@ -150,7 +148,7 @@ public class MainController {
 
             for (List<Integer> row : scaffolddata) {
                 for (Integer value : row) {
-                    if (value != null) {  // 避免 null 值
+                    if (value != null) { // 避免 null 值
                         totalScaffoldSum += value;
                     }
                 }
@@ -158,19 +156,19 @@ public class MainController {
             createDynamicTabs(scaffolddataMap, kmcgdata, totalKmcgSum);
             // 将读取的数据传给函数
             if (!kmcgdata.isEmpty()) {
-                KMCG_Processing.drawKMCGOnCanvas(KMCGCanvas,kmcgdata);
+                KMCG_Processing.drawKMCGOnCanvas(KMCGCanvas, kmcgdata);
                 KMCG_Processing.setupMouseTracking(KMCGCanvas, kmcgdata, isMagnificationEnabled);
                 Quality_Processing.drawQualityOnCanvas(qualityCanvas, targetData);
                 Quality_Processing.drawQualityLineCanvas(qualityCanvas);
 
             }
-                magnificationButton.setVisible(true);
-            } else {
-                // 数据无效时，显示默认图片
-                KMCG_Processing.showDefaultImage(KMCGCanvas);
-            }
-
+            magnificationButton.setVisible(true);
+        } else {
+            // 数据无效时，显示默认图片
+            KMCG_Processing.showDefaultImage(KMCGCanvas);
         }
+
+    }
 
     @FXML
     private void handleDetailClick(ActionEvent event) {
@@ -186,7 +184,6 @@ public class MainController {
             showFileDetails();
         }
     }
-
 
     private void showFileDetails() {
         Stage stage = new Stage();
@@ -240,7 +237,8 @@ public class MainController {
         }
     }
 
-    private void createDynamicTabs(Map<String, List<List<Integer>>> scaffolddataMap, List<List<Integer>> kmcgdata, int totalKmcgSum){
+    private void createDynamicTabs(Map<String, List<List<Integer>>> scaffolddataMap, List<List<Integer>> kmcgdata,
+            int totalKmcgSum) {
         tabPane.getTabs().removeIf(tab -> tab.getProperties().containsKey("dynamicTab"));
 
         for (Map.Entry<String, List<List<Integer>>> entry : scaffolddataMap.entrySet()) {
@@ -249,8 +247,9 @@ public class MainController {
 
             // 为每个tab计算独立的值
             int tabMaxValidValue = Scaffolds_Processing.findMaxValue(tabScaffoldData);
-            List<List<Integer>> tabSaturationData = Scaffolds_Processing.applySaturation(tabScaffoldData, tabMaxValidValue);
-// 计算该tab的总scaffold sum
+            List<List<Integer>> tabSaturationData = Scaffolds_Processing.applySaturation(tabScaffoldData,
+                    tabMaxValidValue);
+            // 计算该tab的总scaffold sum
             int tabScaffoldSum = 0;
             for (List<Integer> row : tabScaffoldData) {
                 for (Integer value : row) {
@@ -267,7 +266,7 @@ public class MainController {
             // 创建新的 Tab
             Tab newTab = new Tab(tabName);
             newTab.setClosable(false);
-            newTab.getProperties().put("dynamicTab", true);  // 添加动态Tab标识
+            newTab.getProperties().put("dynamicTab", true); // 添加动态Tab标识
             // 创建 Tab 内容
             HBox hbox = new HBox();
             StackPane stackPane = new StackPane();
@@ -318,7 +317,7 @@ public class MainController {
         private final int totalScaffoldSum;
 
         public TabData(List<List<Integer>> scaffolddata, int maxValidvalue,
-                       List<List<Integer>> saturationdata, int totalScaffoldSum) {
+                List<List<Integer>> saturationdata, int totalScaffoldSum) {
             this.scaffolddata = scaffolddata;
             this.maxValidvalue = maxValidvalue;
             this.saturationdata = saturationdata;
@@ -340,12 +339,6 @@ public class MainController {
         public int getTotalScaffoldSum() {
             return totalScaffoldSum;
         }
-}
+    }
 
 }
-
-
-
-
-
-

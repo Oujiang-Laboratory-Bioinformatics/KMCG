@@ -8,24 +8,29 @@ public class ColorUtils {
     public static int[][] getColorScheme(String ctype) {
         switch (ctype) {
             case "BW": // black-white
-                return new int[][]{
-                        {0, 255, 255}, {0}, {0, 0, 0}, {50}, {128, 128, 128}, {100}, {255, 255, 255}, {101}, {255, 0, 255}, {255, 0, 255}
+                return new int[][] {
+                        { 0, 255, 255 }, { 0 }, { 0, 0, 0 }, { 50 }, { 128, 128, 128 }, { 100 }, { 255, 255, 255 },
+                        { 101 }, { 255, 0, 255 }, { 255, 0, 255 }
                 };
             case "C1": // white-red-black
-                return new int[][]{
-                        {255, 255, 255}, {3}, {255, 255, 255}, {50}, {255, 0, 0}, {100}, {0, 0, 0}, {101}, {0, 0, 0}, {0, 0, 0}
+                return new int[][] {
+                        { 255, 255, 255 }, { 3 }, { 255, 255, 255 }, { 50 }, { 255, 0, 0 }, { 100 }, { 0, 0, 0 },
+                        { 101 }, { 0, 0, 0 }, { 0, 0, 0 }
                 };
             case "C2": // yellow-blue-black
-                return new int[][]{
-                        {255, 255, 200}, {10}, {255, 255, 200}, {60}, {0, 255, 0}, {100}, {0, 0, 0}, {101}, {0, 0, 0}, {0, 0, 0}
+                return new int[][] {
+                        { 255, 255, 200 }, { 10 }, { 255, 255, 200 }, { 60 }, { 0, 255, 0 }, { 100 }, { 0, 0, 0 },
+                        { 101 }, { 0, 0, 0 }, { 0, 0, 0 }
                 };
             case "HM":
-                return new int[][]{
-                        {0, 0, 0}, {0}, {0, 0, 0}, {30}, {200, 0, 0}, {70}, {200, 200, 100}, {100}, {240, 240, 255}, {255, 0, 255}
+                return new int[][] {
+                        { 0, 0, 0 }, { 0 }, { 0, 0, 0 }, { 30 }, { 200, 0, 0 }, { 70 }, { 200, 200, 100 }, { 100 },
+                        { 240, 240, 255 }, { 255, 0, 255 }
                 };
             case "UD":
-                return new int[][]{
-                        {0, 0, 0}, {0}, {0, 0, 255}, {30}, {255, 255, 0}, {70}, {255, 165, 0}, {100}, {255, 0, 0}
+                return new int[][] {
+                        { 0, 0, 0 }, { 0 }, { 0, 0, 255 }, { 30 }, { 255, 255, 0 }, { 70 }, { 255, 165, 0 }, { 100 },
+                        { 255, 0, 0 }
                 };
             default:
                 throw new IllegalArgumentException("Invalid color scheme type: " + ctype);
@@ -50,7 +55,8 @@ public class ColorUtils {
     }
 
     // 颜色插值函数，按比例插值计算 RGB 颜色值
-    private static Color interpolateColor(int[] color1, int[] color2, double percentage, double startPercent, double endPercent) {
+    private static Color interpolateColor(int[] color1, int[] color2, double percentage, double startPercent,
+            double endPercent) {
         // 计算插值比例
         double t = (percentage - startPercent) / (endPercent - startPercent);
 

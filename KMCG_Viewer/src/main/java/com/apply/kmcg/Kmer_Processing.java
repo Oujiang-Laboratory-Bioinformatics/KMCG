@@ -7,14 +7,15 @@ import static com.apply.kmcg.MainController.coordinateDict;
 
 public class Kmer_Processing {
     // 声明全局变量 maxValue
-    public static int maxValue = 0;  // 初始化为0
-//    名称
+    public static int maxValue = 0; // 初始化为0
+    // 名称
+
     public static List<String> NamesData() {
         // 返回 names 数据
         return MainController.names;
     }
 
-//长度
+    // 长度
     public static List<Integer> LengthsData() {
         // 返回 lengths 数据
         return MainController.lengths;
@@ -27,7 +28,7 @@ public class Kmer_Processing {
     // 初始化存储空间，接收 names 和 lengths 列表
     public static Map<String, List<Integer>> initializeStorage(List<String> names, List<Integer> lengths) {
 
-        Map<String, List<Integer>> storage = new LinkedHashMap<>();//按顺序
+        Map<String, List<Integer>> storage = new LinkedHashMap<>();// 按顺序
         // 遍历 names 和 lengths 列表，初始化存储空间
         for (int i = 0; i < names.size(); i++) {
             String name = names.get(i);
@@ -44,7 +45,8 @@ public class Kmer_Processing {
         String[] dataItems = data.split(" ");
         for (String item : dataItems) {
             // 忽略前31个字符，从第32个字符开始处理
-            if (item.length() <= 31) continue; // 确保数据足够长
+            if (item.length() <= 31)
+                continue; // 确保数据足够长
             String trimmedItem = item.substring(31);
             // 每四个字符处理一次
             for (int i = 0; i < trimmedItem.length(); i += 4) {
@@ -59,9 +61,9 @@ public class Kmer_Processing {
         return parsedData;
     }
 
-
     // 统计每种数据的出现次数，并更新存储空间
-    public static Map<String, List<Integer>> updateStorage(List<String> names, Map<String, List<Integer>> storage, List<Map.Entry<Character, Integer>> parsedData) {
+    public static Map<String, List<Integer>> updateStorage(List<String> names, Map<String, List<Integer>> storage,
+            List<Map.Entry<Character, Integer>> parsedData) {
         Map<Integer, Map<Integer, Integer>> counts = new HashMap<>();
         int maxValue = 0;
 
@@ -95,7 +97,8 @@ public class Kmer_Processing {
         return storage;
     }
 
-    public static int getMaxValue(List<String> names, Map<String, List<Integer>> storage, List<Map.Entry<Character, Integer>> parsedData) {
+    public static int getMaxValue(List<String> names, Map<String, List<Integer>> storage,
+            List<Map.Entry<Character, Integer>> parsedData) {
         // 获取更新后的存储空间
         Map<String, List<Integer>> updatedStorage = updateStorage(names, storage, parsedData);
 
@@ -109,7 +112,8 @@ public class Kmer_Processing {
         return maxValue;
     }
 
-    public static int getTotalValue(List<String> names, Map<String, List<Integer>> storage, List<Map.Entry<Character, Integer>> parsedData) {
+    public static int getTotalValue(List<String> names, Map<String, List<Integer>> storage,
+            List<Map.Entry<Character, Integer>> parsedData) {
         // 获取更新后的存储空间
         Map<String, List<Integer>> updatedStorage = updateStorage(names, storage, parsedData);
 
@@ -120,11 +124,9 @@ public class Kmer_Processing {
                 totalValue += count;
             }
         }
-//        System.out.println(totalValue);
+        // System.out.println(totalValue);
         return totalValue;
     }
-
-
 
     public static String processBlockIndex(int rowIndex, int columnIndex) {
         if (columnIndex < 0) {
@@ -135,7 +137,7 @@ public class Kmer_Processing {
         return rowChar + colStr;
     }
 
-// 测试打印字典内容 把类似于(177, 108): AGT...!007!007! (2, 416): TCT...!007!007!都放在一起
+    // 测试打印字典内容 把类似于(177, 108): AGT...!007!007! (2, 416): TCT...!007!007!都放在一起
     public static void printDataDict() {
         for (Map.Entry<String, String> entry : coordinateDict.entrySet()) {
             System.out.println(entry.getKey() + ": " + entry.getValue());
@@ -150,10 +152,11 @@ public class Kmer_Processing {
             String[] dataItems = value.split(" ");
 
             for (String item : dataItems) {
-                if (item.length() < 31) continue; // 确保数据项足够长
+                if (item.length() < 31)
+                    continue; // 确保数据项足够长
 
                 String name = item.substring(0, 31); // 前31个字符作为名字
-                String data = item.substring(31);   // 剩下的部分作为数据内容
+                String data = item.substring(31); // 剩下的部分作为数据内容
 
                 // **获取已有的计数**
                 int totalCount = nameCount.getOrDefault(name, 0);
@@ -173,7 +176,6 @@ public class Kmer_Processing {
             }
         }
 
-
         return sortByValueDesc(nameCount);
     }
 
@@ -187,8 +189,5 @@ public class Kmer_Processing {
         }
         return sortedMap;
     }
-
-
-
 
 }

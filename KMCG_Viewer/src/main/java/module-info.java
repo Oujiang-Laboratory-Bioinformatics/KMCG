@@ -7,5 +7,6 @@ module com.apply.kmcg {
     requires org.kordamp.ikonli.javafx;
 
     opens com.apply.kmcg to javafx.fxml; // 如果使用 FXML
+
     exports com.apply.kmcg;
 }

@@ -14,10 +14,12 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.control.Button?>
-<SplitPane dividerPositions="0.04500548847420417" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" orientation="VERTICAL" prefHeight="880.0" prefWidth="1300.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.apply.kmcg.MainController">
+<SplitPane dividerPositions="0.04500548847420417" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" orientation="VERTICAL" prefHeight="880.0" prefWidth="1300.0"
+    xmlns="http://javafx.com/javafx/23.0.1"
+    xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.apply.kmcg.MainController">
     <items>
-      <Pane prefHeight="21.0" prefWidth="1300.0">
-         <children>
+        <Pane prefHeight="21.0" prefWidth="1300.0">
+            <children>
                 <MenuBar prefHeight="37.0" prefWidth="275.0">
                     <menus>
                         <Menu mnemonicParsing="false" text="File">
@@ -27,25 +29,25 @@
                             </items>
                         </Menu>
 
-                  <Menu mnemonicParsing="false" text="View">
-                     <items>
-                         <MenuItem mnemonicParsing="false" onAction="#handleKMCGTab" text="KMCG" />
-                         <MenuItem mnemonicParsing="false" onAction="#handleKMerTab" text="K-mer" />
-                         <MenuItem mnemonicParsing="false" onAction="#handleDetailClick" text="Detail" />
-                         <MenuItem mnemonicParsing="false" onAction="#handleCoordinatePointsClick" text="Current coordinates" />
+                        <Menu mnemonicParsing="false" text="View">
+                            <items>
+                                <MenuItem mnemonicParsing="false" onAction="#handleKMCGTab" text="KMCG" />
+                                <MenuItem mnemonicParsing="false" onAction="#handleKMerTab" text="K-mer" />
+                                <MenuItem mnemonicParsing="false" onAction="#handleDetailClick" text="Detail" />
+                                <MenuItem mnemonicParsing="false" onAction="#handleCoordinatePointsClick" text="Current coordinates" />
 
-                     </items>
-                  </Menu>
+                            </items>
+                        </Menu>
                         <Menu mnemonicParsing="false" text="Help">
                             <items>
-<!--                                <MenuItem mnemonicParsing="false" text="About" />-->
+                                <!--                                <MenuItem mnemonicParsing="false" text="About" />-->
                                 <MenuItem mnemonicParsing="false" text="About" onAction="#handleAbout" />
                             </items>
                         </Menu>
                     </menus>
                 </MenuBar>
-         </children>
-      </Pane>
+            </children>
+        </Pane>
 
         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="819.0" prefWidth="1300.0">
             <children>
@@ -57,13 +59,9 @@
                             <HBox spacing="10.0" alignment="CENTER_LEFT">
                                 <StackPane>
                                     <AnchorPane>
-                                    <Canvas fx:id="KMCGCanvas" height="820.0" width="1300.0" />
+                                        <Canvas fx:id="KMCGCanvas" height="820.0" width="1300.0" />
 
-                                    <Button fx:id="magnificationButton" text="🔍"
-                                            prefWidth="40.0" prefHeight="30.0" onAction="#handleMagnificationButton"
-                                            AnchorPane.leftAnchor="100.0" AnchorPane.topAnchor="740.0"
-                                            style="-fx-font-size: 15px;"
-                                    />
+                                        <Button fx:id="magnificationButton" text="🔍" prefWidth="40.0" prefHeight="30.0" onAction="#handleMagnificationButton" AnchorPane.leftAnchor="100.0" AnchorPane.topAnchor="740.0" style="-fx-font-size: 15px;" />
                                     </AnchorPane>
                                 </StackPane>
 

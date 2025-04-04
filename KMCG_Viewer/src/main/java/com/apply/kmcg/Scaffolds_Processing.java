@@ -16,8 +16,9 @@ public class Scaffolds_Processing {
     private int displayMode = 0; // 0: 原始值, 1: 比例模式, 2: 修改后比例模式
     private double max_value;
     private double max_ratio;
+
     public void drawscaffoldOnCanvas(Canvas dataCanvas, MainController.TabData tabData,
-                                     List<List<Integer>> kmcgdata, int totalKmcgSum) {
+            List<List<Integer>> kmcgdata, int totalKmcgSum) {
         List<List<Integer>> scaffolddata = tabData.getScaffolddata();
         int maxValidvalue = tabData.getMaxValidvalue();
         List<List<Integer>> saturationdata = tabData.getSaturationdata();
@@ -101,11 +102,10 @@ public class Scaffolds_Processing {
                 scaffolddata, kmcgdata, saturationdata, totalScaffoldSum);
     }
 
-
     private void drawColorScale(GraphicsContext gc, double colorBarX, double colorBarY,
-                                double colorBarWidth, double colorBarHeight,
-                                double scaleBarX, double scaleBarY, int scaleCount,
-                                double canvasWidth) {
+            double colorBarWidth, double colorBarHeight,
+            double scaleBarX, double scaleBarY, int scaleCount,
+            double canvasWidth) {
         double centeredColorBarX = (canvasWidth - colorBarWidth) / 2;
         double centeredScaleBarX = centeredColorBarX;
 
@@ -161,9 +161,9 @@ public class Scaffolds_Processing {
     }
 
     private void setupMouseTracking(Canvas dataCanvas, double scaleX, double scaleY,
-                                    int rowCount, int colCount, double offsetX, double offsetY,
-                                    List<List<Integer>> scaffolddata, List<List<Integer>> kmcgdata,
-                                    List<List<Integer>> saturationdata, int totalScaffoldSum) {
+            int rowCount, int colCount, double offsetX, double offsetY,
+            List<List<Integer>> scaffolddata, List<List<Integer>> kmcgdata,
+            List<List<Integer>> saturationdata, int totalScaffoldSum) {
         dataCanvas.setOnMouseMoved(event -> {
             double mouseX = event.getX();
             double mouseY = event.getY();
@@ -186,10 +186,13 @@ public class Scaffolds_Processing {
 
             switch (displayMode) {
                 case 1:
-                    displayValue = denominator != 0 ? String.format("%.1f%%", (double) dataValue / denominator * 100) : "0%";
+                    displayValue = denominator != 0 ? String.format("%.1f%%", (double) dataValue / denominator * 100)
+                            : "0%";
                     break;
                 case 2:
-                    displayValue = totalScaffoldSum != 0 ? String.format("%.1f%%", (double) saturationValue / totalScaffoldSum * 100) : "0%";
+                    displayValue = totalScaffoldSum != 0
+                            ? String.format("%.1f%%", (double) saturationValue / totalScaffoldSum * 100)
+                            : "0%";
                     break;
                 default:
                     displayValue = String.valueOf(dataValue);
@@ -207,7 +210,7 @@ public class Scaffolds_Processing {
     }
 
     private void showCoordinates(Canvas dataCanvas, double mouseX, double mouseY,
-                                 int xCoord, int yCoord, String displayValue) {
+            int xCoord, int yCoord, String displayValue) {
         if (currentTooltip == null) {
             currentTooltip = new Tooltip();
             Tooltip.install(dataCanvas, currentTooltip);
@@ -220,10 +223,8 @@ public class Scaffolds_Processing {
         currentTooltip.show(dataCanvas, tooltipX, tooltipY);
     }
 
-
-
     public int toggleDisplayMode(Canvas dataCanvas, MainController.TabData tabData,
-                                 List<List<Integer>> kmcgdata, int totalKmcgSum) {
+            List<List<Integer>> kmcgdata, int totalKmcgSum) {
         displayMode = (displayMode + 1) % 3;
         drawscaffoldOnCanvas(dataCanvas, tabData, kmcgdata, totalKmcgSum);
         return displayMode;
@@ -261,6 +262,5 @@ public class Scaffolds_Processing {
 
         return saturationdata;
     }
-
 
 }
