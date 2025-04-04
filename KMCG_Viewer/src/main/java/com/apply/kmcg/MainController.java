@@ -110,8 +110,8 @@ public class MainController {
     @FXML
     public void initialize() {
         // 为关闭事件添加监听器
-        tabKMCG.setOnClosed(_ -> isTabKMCGClosed = true);
-        tabKMer.setOnClosed(_ -> isTabKMerClosed = true);
+        tabKMCG.setOnClosed(event -> isTabKMCGClosed = true);
+        tabKMer.setOnClosed(event -> isTabKMerClosed = true);
         // 默认图片
         KMCG_Processing.showDefaultImage(KMCGCanvas);
         // 初始化时隐藏按钮
@@ -280,7 +280,7 @@ public class MainController {
             AnchorPane.setTopAnchor(switchFormatButton, 30.0);
 
             // 设置按钮点击事件
-            switchFormatButton.setOnAction(_ -> {
+            switchFormatButton.setOnAction(event -> {
                 int mode = processor.toggleDisplayMode(canvas, tabData, kmcgdata, totalKmcgSum);
                 switch (mode) {
                     case 0:

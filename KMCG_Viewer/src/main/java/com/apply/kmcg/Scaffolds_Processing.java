@@ -197,7 +197,7 @@ public class Scaffolds_Processing {
             showCoordinates(dataCanvas, mouseX, mouseY, xCoord, yCoord, displayValue);
         });
 
-        dataCanvas.setOnMouseExited(_ -> {
+        dataCanvas.setOnMouseExited(event -> {
             if (currentTooltip != null) {
                 currentTooltip.hide();
             }

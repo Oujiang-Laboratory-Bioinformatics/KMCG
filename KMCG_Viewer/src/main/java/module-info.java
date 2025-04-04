@@ -1,7 +1,5 @@
 module com.apply.kmcg {
     requires javafx.fxml;
-    requires javafx.web;
-    requires javafx.swing;
     requires org.controlsfx.controls; // 第三方库按需添加
     requires org.kordamp.ikonli.javafx;
     requires transitive javafx.graphics;
