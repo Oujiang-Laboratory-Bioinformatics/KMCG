@@ -38,7 +38,7 @@ cd KMCG
 The commands should be run within the KMCG directory path.
 
 ```
-cd ./KMCG
+cd ./KMCG/
 
 g++ -I ./FM-index/FM-Index-master/libcds/includes/ -I ./FM-index/FM-Index-master/libdivsufsort/include/ -W -Wall -O3 -o KMCG kmcg1.0.cpp kmc_file.cpp  nc_utils.cpp  kmer_api.cpp  kmer_defs.h mmer.cpp ./FM-index/FM-Index-master/libfmindex.a ./FM-index/FM-Index-master/libdivsufsort/lib/libdivsufsort.a ./FM-index/FM-Index-master/libcds/lib/libcds.a
 
