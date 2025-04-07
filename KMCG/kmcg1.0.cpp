@@ -757,7 +757,7 @@ int main(int argc, char* argv[])
         }
         file.close();
     } else {
-        std::cerr << "Unable to open fai file.Please check if the fai file exists or is damaged." << std::endl;
+        std::cerr << "Unable to open fai file.Please check if the fai file exists or is damaged.The fai file should be placed in the same directory as the FASTA file." << std::endl;
         return 1;
     }
     struct Entry {
