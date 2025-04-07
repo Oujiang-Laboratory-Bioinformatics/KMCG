@@ -127,6 +127,7 @@
               </winConfig>
               <macConfig>
                 <appId>com.apply.KMCG</appId>
+                <macStartup>UNIVERSAL</macStartup>
                 <generateDmg>true</generateDmg>
                 <generatePkg>false</generatePkg>
               </macConfig>
