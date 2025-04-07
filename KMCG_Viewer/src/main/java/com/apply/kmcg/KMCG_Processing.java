@@ -936,6 +936,9 @@ public class KMCG_Processing {
 
     // 清除画布
     public static void clearCanvas(Canvas dataCanvas) {
+        if (dataCanvas == null) {
+            return; // 如果画布为空，直接返回
+        }
         GraphicsContext gc = dataCanvas.getGraphicsContext2D();
         gc.clearRect(0, 0, dataCanvas.getWidth(), dataCanvas.getHeight()); // 清空整个画布
     }
