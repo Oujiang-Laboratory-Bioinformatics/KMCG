@@ -614,7 +614,7 @@ int main(int argc, char* argv[])
     input_file_name  = std::string(argv[i++]);
     input_file_name1 = std::string(argv[i++]);
 	input_file_name2 = std::string(argv[i++]);
-	input_file_name3 = std::string(argv[i++]);
+	// input_file_name3 = std::string(argv[i++]);
 	output_file_name = std::string(argv[i]);
 	samplerate = DEFAULT_SAMPLERATE;
 	double tt=s*1000.0;
