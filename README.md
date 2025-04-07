@@ -8,7 +8,7 @@ KMCG (**K**mer **M**ultiplicity **C**onsensus **G**raph) provides a set of tools
 
 ## System Requirement
 
-KMCG is designed for sequencing hubs with the ability of *de novo* assemblies of complex genomes. For a mammalian genome similar to humans, running the KMGC main script needs around 256GB of memory and 64 cores of CPU. Linux-based HPC with 512GB of memory is recommended. The code is compatible with workload managers like Slurm or LSF.   
+KMCG is designed for sequencing hubs with the ability of *de novo* assemblies of complex genomes. For a mammalian genome similar to humans, running the KMCG main script needs around 256GB of memory and 64 cores of CPU. Linux-based HPC with 512GB of memory is recommended. The code is compatible with workload managers like Slurm or LSF.   
 
 However, processed data can be visualized by KMGC viewer, which is a JAVA-based programme accessable from any laptop or desktop computers.
 
