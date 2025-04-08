@@ -114,6 +114,7 @@ public class MainController {
         tabKMer.setOnClosed(event -> isTabKMerClosed = true);
         // 默认图片
         KMCG_Processing.showDefaultImage(KMCGCanvas);
+        new KMCG_Processing(KmerCanvas);
         // 初始化时隐藏按钮
         magnificationButton.setVisible(false);
     }
