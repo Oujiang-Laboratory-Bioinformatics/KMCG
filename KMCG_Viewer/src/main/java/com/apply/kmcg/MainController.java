@@ -210,14 +210,27 @@ public class MainController {
     }
 
     public void handleAbout(ActionEvent event) {
+        final Properties properties = new Properties();
+        try (InputStream input = getClass().getClassLoader().getResourceAsStream("project.properties")) {
+            if (input == null) {
+                System.out.println("Sorry, unable to find version.properties");
+                return;
+            }
+            properties.load(input);
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+
+        String version = properties.getProperty("version", "");
+        String license = properties.getProperty("license", "");
+        String name = properties.getProperty("name", "");
+        String author = properties.getProperty("author", "");
+
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("About");
-        alert.setHeaderText("KMCG Application");
-        alert.setContentText("Version: 1.0\n" +
-                "Last Updated: 2025-4-1\n" +
-                "Developed by: Carrot Head Oatmeal, WillChou0, ALBG\n" +
-                "Contact: ");
-
+        alert.setHeaderText(name);
+        alert.setContentText(
+                "Version: " + version + "\n" + "License: " + license + "\n" + "Developed by: " + author + "\n");
         alert.showAndWait();
     }
 
