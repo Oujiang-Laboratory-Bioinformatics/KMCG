@@ -27,7 +27,7 @@ Then, install the required tools:
 ```pwsh
 scoop bucket add extras
 scoop bucket add java
-scoop install maven microsoft21-jdk innosetup
+scoop install maven microsoft21-jdk inno-setup
 ```
 
 #### macOS
