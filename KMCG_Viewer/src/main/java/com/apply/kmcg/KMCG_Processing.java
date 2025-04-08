@@ -725,6 +725,10 @@ public class KMCG_Processing {
                 drawClickedPoints(dataCanvas);
                 showRegion5Coordinates(dataCanvas, mouseX, mouseY); // 新增：显示 region5 坐标
                 // 调用 showRegion5MagnifiedView 方法，传入放大倍数
+                if (quadrilateralPoints.size() == 4) {
+                    drawQuadrilateral(dataCanvas, quadrilateralPoints);
+                    drawClickedPoints(dataCanvas);
+                }
                 if (isMagnificationEnabled) {
                     showRegion5MagnifiedView(dataCanvas, mouseX, mouseY, data, magnificationFactor);
                 }
@@ -734,6 +738,10 @@ public class KMCG_Processing {
                 if (currentTooltip != null) {
                     currentTooltip.hide();
                     drawKMCGOnCanvas(dataCanvas, data);
+
+                    if (quadrilateralPoints.size() == 4) {
+                        drawQuadrilateral(dataCanvas, quadrilateralPoints);
+                    }
                     drawClickedPoints(dataCanvas);
                 }
             }
@@ -764,6 +772,7 @@ public class KMCG_Processing {
                 if (clickedPoints.size() > 4) {
                     clickedPoints.clear();
                     clickedPoints.add(new double[] { xCoord, yCoord });
+                    quadrilateralPoints.clear();
                 }
                 clearCanvas(dataCanvas);
                 drawKMCGOnCanvas(dataCanvas, data);
@@ -794,7 +803,7 @@ public class KMCG_Processing {
                     if (canFormQuadrilateral(quadrilateralPoints)) {
                         drawQuadrilateral(dataCanvas, quadrilateralPoints);
                         // handleQuadrilateralSelection(); //选取后用于显示坐标的弹窗
-                        CoordinateTip();
+                        // CoordinateTip();
                         getCoordinatePoints();
 
                         // 将查询结果拼接成一个字符串，方便后续使用
