@@ -47,7 +47,8 @@ g++ -I ./FM-index/FM-Index-master/libcds/includes/ -I ./FM-index/FM-Index-master
 ## Run
 
 ```
-./KMCG [parameters] <KMC file prefix of raw data> <KMC file prefix of assembly> <Reference genome.fa> <output> 
+./KMCG [parameters] <KMC file prefix of raw data> <KMC file prefix of assembly> <Reference genome.fa> <output>
+example: ./KMCG -xstep10 -ystep1 -p10  /public/ojsys/management/lijt/kmer/new/CHM13pb  /public/ojsys/management/lijt/kmer/humanT2T/CHM13v2woY  /public/ojsys/management/lijt/kmer/humanT2T/CHM13v2woY.fa  /public/ojsys/management/lijt/kmer/results/CHM13pb.CHM13v2woY.p10x10y1.kmcg
   -xstep (int)	Step length of raw WGS multiplicity, recommend value is the predicted read depth*0.25*(readlength - K-mer-length)/readlength, a lower value can increase the resolution at sequences with lower copy numbers, but reduce the visual range,default value 10.
   -ystep	(int)	Step length for K-mer multiplicity of the assembly, default value 1.
   -t	(int)	for analysis of small genomes, or scaffolds, this parameter gives smaller slice of genome location, the unit is Kb. Default value 1000, i.e. 1Mb per block.
