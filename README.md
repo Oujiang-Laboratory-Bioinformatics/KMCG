@@ -1,4 +1,5 @@
 # KMCG
+## Test phase, please contact us if you encounter any difficulty on compiling / running etc. 
 
 ## Kmer-based tools to evaluate and improve T2T level genome assemblies
 
