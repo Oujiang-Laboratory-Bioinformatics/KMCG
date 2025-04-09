@@ -29,6 +29,6 @@ kmc -k31 -t32 -m190 -sm -fm -ci1 -cs65535 -v ./chm13v2.0.fa asm_CHM13 ./
 ```
 * Step 5 run KMCG, generate graph with step 10 in X axis. i.e., each block at the X-axis is a sum-up of 10 columns.
 ```
-KMCG -xstep10 -p10 -t1000 -@64 ./raw_CHM13 ./asm_CHM13 ./chm13v2.0_noY.fa ./Hifi_CHM13v2noY.x1y10.kmcg
+KMCG -xstep10 -p10 -t1000 ./raw_CHM13 ./asm_CHM13 ./chm13v2.0_noY.fa ./Hifi_CHM13v2noY.x1y10.kmcg
 ```
 * Step 6 visualize the data with KMCGviewer. There is a copy of kmcg file in the folder. Your result should be similar to this file. Unzip before opening.
