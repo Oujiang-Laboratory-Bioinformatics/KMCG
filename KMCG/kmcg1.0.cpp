@@ -1944,5 +1944,5 @@ deleteDirectory(folderName);
 void print_info(void)
 {
 	std::cout << "KMCG version 1.0.\n"
-			  << "\nUsage:\nKMCG [parameters] <KMC file prefix of raw data> <KMC file prefix of assembly> <Reference genome.fa> <Reference genome.fa.fai> <output>\n";
+			  << "\nUsage:\nKMCG [parameters] <KMC file prefix of raw data> <KMC file prefix of assembly> <Reference genome.fa> <output>\n";
 }
