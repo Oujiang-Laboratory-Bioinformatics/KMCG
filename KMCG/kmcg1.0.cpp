@@ -543,7 +543,7 @@ int main(int argc, char* argv[])
     uint32 p=10;
 	uint32 s=1000;
 	uint32 xbox=1002;
-	uint32 ybox=202;
+	uint32 ybox=302;
 	std::string CHR = "";
 	std::string sex = "";
 	std::string input_file_name;
