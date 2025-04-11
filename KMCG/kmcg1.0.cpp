@@ -1628,7 +1628,7 @@ int main(int argc, char* argv[])
 	}
 	else
 	{
-	std::cerr << "Error: sumforki0+sumforki==0" << std::endl;
+	std::cerr << "Error: sumforki0==0  or  sumforki0+sumforki==0" << std::endl;
 	}
 
 
