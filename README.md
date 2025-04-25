@@ -9,7 +9,7 @@ KMCG (**K**mer **M**ultiplicity **C**onsensus **G**raph) provides a set of tools
 
 ## System Requirement
 
-KMCG is designed for sequencing hubs with the ability of *de novo* assemblies of complex genomes. For a mammalian genome similar to humans, running the KMCG main script needs around 256GB of memory and 64 cores of CPU. Linux-based HPC with 512GB of memory is recommended. The code is compatible with workload managers like Slurm or LSF.   
+KMCG is designed for sequencing hubs with the ability of *de novo* assemblies of complex genomes. For a mammalian genome similar to humans, running the KMCG main script needs around 64GB of memory and 32 cores of CPU. Linux-based HPC with more memory is recommended. The code is compatible with workload managers like Slurm or LSF.   
 
 However, processed data can be visualized by KMGC viewer, which is a JAVA-based programme accessable from any laptop or desktop computers.
 
@@ -23,7 +23,7 @@ However, processed data can be visualized by KMGC viewer, which is a JAVA-based 
 
 ### KMC
 
-Download  REFRESH's [KMC](https://github.com/refresh-bio/KMC) from the website, install the pipeline. Get working KMC in your `PATH`. 
+Download  REFRESH's [KMC](https://github.com/refresh-bio/KMC) from the website, and install the pipeline. Get working KMC in your `PATH`. 
 
 ### KMCG
 
@@ -51,14 +51,21 @@ g++ -I ./FM-index/FM-Index-master/libcds/includes/ -I ./FM-index/FM-Index-master
 ./KMCG [parameters] <KMC file prefix of raw data> <KMC file prefix of assembly> <Reference genome.fa> <output>
 
 
-example: ./KMCG -xstep10 -ystep1 -p10  /public/ojsys/management/lijt/kmer/new/CHM13pb  /public/ojsys/management/lijt/kmer/humanT2T/CHM13v2woY  /public/ojsys/management/lijt/kmer/humanT2T/CHM13v2woY.fa  /public/ojsys/management/lijt/kmer/results/CHM13pb.CHM13v2woY.p10x10y1.kmcg
+example: ./KMCG -x 10 -y 1 -p 10  /public/ojsys/management/lijt/kmer/new/CHM13pb  /public/ojsys/management/lijt/kmer/humanT2T/CHM13v2woY  /public/ojsys/management/lijt/kmer/humanT2T/CHM13v2woY.fa  -o /public/ojsys/management/lijt/kmer/results/CHM13pb.CHM13v2woY.p10x10y1
 
+-k int	K-mer length, default is 31. Ki and M50 values are dependent on K-mer length.
+-x int	Step length of raw WGS multiplicity, recommend value is the predicted read depth*0.25*(readlength - K-mer-length)/readlength, a lower value can increase the resolution at sequences with lower copy numbers, but reduce the visual range.
+-y	int	Step length for K-mer multiplicity of the assembly, default value 1.
+-o	str	File name for the output
+-h	str	haploid chromosomes, if multiple, separate by commas
+-c	-	output additional statistics for GC content
+-t	int	for analysis of small genomes, or scaffolds, this parameter gives smaller slice of genome location, the unit is Kb. Default value 1000, i.e. 1Mb per block.
+-p	int	Only calculate 1/P of the total Kmer. Can accelerate the code.
+-s	file	Generate statistics of selected regions of assembly. both .fa or KMC files are accepted.
+-@	int	thread of running
+-h	int	Height of output array. At the moment not supported by the viewer.
+-w	int	Width of output array. At the moment not supported by the viewer.
 
-  -xstep (int)	Step length of raw WGS multiplicity, recommend value is the predicted read depth*0.25*(readlength - K-mer-length)/readlength, a lower value can increase the resolution at sequences with lower copy numbers, but reduce the visual range,default value 10.
-  -ystep	(int)	Step length for K-mer multiplicity of the assembly, default value 1.
-  -t	(int)	for analysis of small genomes, or scaffolds, this parameter gives smaller slice of genome location, the unit is Kb. Default value 1000, i.e. 1Mb per block.
-  -p (int) Sampling rate,-p10 means choose one for every 10 kmers,default value 10.
-  -scr Specify a segment and see the area it affects on the KMCG map. If the segment you want to see is chromosome 6 from 5M to 6M,example：-scrcchromosome6:5.0-6.0
 ```
 
 ## KMCG Viewer Usage
