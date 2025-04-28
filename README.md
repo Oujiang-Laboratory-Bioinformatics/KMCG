@@ -18,6 +18,7 @@ However, processed data can be visualized by KMGC viewer, which is a JAVA-based 
   * Java run time environment (JRE) 11 or higher
   * Samtools
   * gcc 11.1.0 or higher
+  * zlib
 
 ## Installation
 
