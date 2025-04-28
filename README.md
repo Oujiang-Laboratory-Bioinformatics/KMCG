@@ -51,7 +51,7 @@ g++ -I ./FM-index/FM-Index-master/libcds/includes/ -I ./FM-index/FM-Index-master
 ./KMCG [parameters] <KMC file prefix of raw data> <KMC file prefix of assembly> <Reference genome.fa> <output>
 
 
-example: ./KMCG -x 10 -y 1 -p 10  /public/ojsys/management/lijt/kmer/new/CHM13pb  /public/ojsys/management/lijt/kmer/humanT2T/CHM13v2woY  /public/ojsys/management/lijt/kmer/humanT2T/CHM13v2woY.fa  -o /public/ojsys/management/lijt/kmer/results/CHM13pb.CHM13v2woY.p10x10y1
+example: ./KMCG -x 10 -y 1 -p 10  /public/ojsys/management/lijt/kmer/new/CHM13pb  /public/ojsys/management/lijt/kmer/humanT2T/CHM13v2woY  /public/ojsys/management/lijt/kmer/humanT2T/CHM13v2woY.fa  -o /public/ojsys/management/lijt/kmer/results/CHM13pb.CHM13v2woY.p10x10y1.gz
 
 -k int	K-mer length, default is 31. Ki and M50 values are dependent on K-mer length.
 -x int	Step length of raw WGS multiplicity, recommend value is the predicted read depth*0.25*(readlength - K-mer-length)/readlength, a lower value can increase the resolution at sequences with lower copy numbers, but reduce the visual range.
