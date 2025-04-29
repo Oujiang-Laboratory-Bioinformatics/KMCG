@@ -64,8 +64,8 @@ example: ./KMCG -x 10 -y 1 -p 10  /public/ojsys/management/lijt/kmer/new/CHM13pb
 -p	int	Only calculate 1/P of the total Kmer. Can accelerate the code.
 -s	file	Generate statistics of selected regions of assembly. both .fa or KMC files are accepted.
 -@	int	thread of running
--h	int	Height of output array. At the moment not supported by the viewer.
--w	int	Width of output array. At the moment not supported by the viewer.
+-H	int	Height of output array. At the moment not supported by the viewer.
+-W	int	Width of output array. At the moment not supported by the viewer.
 
 ```
 
