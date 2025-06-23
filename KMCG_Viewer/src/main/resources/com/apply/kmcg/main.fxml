@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.canvas.Canvas?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.Pane?>
+
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
+<SplitPane dividerPositions="0.045" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" orientation="VERTICAL" prefHeight="880.0" prefWidth="1300.0" xmlns="http://javafx.com/javafx/21.0.2" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.apply.kmcg.MainController">
+    <items>
+      <Pane prefHeight="21.0" prefWidth="1300.0">
+         <children>
+                <MenuBar prefHeight="37.0" prefWidth="275.0">
+                    <menus>
+                        <Menu mnemonicParsing="false" text="File">
+                            <items>
+                                <MenuItem mnemonicParsing="false" onAction="#handleOpenFile" text="Open" />
+                                <MenuItem mnemonicParsing="false" onAction="#handleSavePicture" text="Save Image" />
+
+                            </items>
+                        </Menu>
+
+                  <Menu mnemonicParsing="false" text="View">
+                     <items>
+                         <MenuItem mnemonicParsing="false" onAction="#handleDetailClick" text="Detail" />
+                         <MenuItem mnemonicParsing="false" onAction="#handleCoordinatePointsClick" text="Current coordinates" />
+
+                     </items>
+                  </Menu>
+                        <Menu mnemonicParsing="false" text="Help">
+                            <items>
+<!--                                <MenuItem mnemonicParsing="false" text="About" />-->
+                                <MenuItem mnemonicParsing="false" text="About" onAction="#handleAbout" />
+                            </items>
+                        </Menu>
+                    </menus>
+                </MenuBar>
+         </children>
+      </Pane>
+
+        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="819.0" prefWidth="1300.0">
+            <children>
+                <TabPane fx:id="tabPane" prefHeight="835.0" prefWidth="1300.0">
+
+                    <tabs>
+                        <Tab fx:id="tabKMCG" closable="false" text="KMCG">
+
+                            <HBox spacing="10.0" alignment="CENTER_LEFT">
+                                <StackPane>
+                                    <AnchorPane>
+                                    <Canvas fx:id="KMCGCanvas" height="820.0" width="1300.0" />
+
+
+                                        <Button fx:id="listButton"  onAction="#handleListButton"
+                                                prefWidth="40.0" prefHeight="30.0"
+                                                AnchorPane.leftAnchor="30.0" AnchorPane.topAnchor="70.0"
+                                                style="-fx-background-color: transparent; -fx-border-width: 0;"
+                                        >
+                                            <graphic>
+                                                <ImageView fitWidth="20" fitHeight="20" preserveRatio="true">
+                                                    <image>
+                                                        <Image url="@image/list.png" />
+                                                    </image>
+                                                </ImageView>
+                                            </graphic>
+                                        </Button>
+
+                                        <Button fx:id="switchButton" onAction="#handleSwitchButton"
+                                                prefWidth="40.0" prefHeight="30.0"
+                                                AnchorPane.leftAnchor="30.0" AnchorPane.topAnchor="130.0">
+                                            <graphic>
+                                                <ImageView fitWidth="20" fitHeight="20" preserveRatio="true">
+                                                    <image>
+                                                        <Image url="@image/switch.png" />
+                                                    </image>
+                                                </ImageView>
+                                            </graphic>
+                                        </Button>
+
+                                        <Button fx:id="magnificationButton" onAction="#handleMagnificationButton"
+                                                prefWidth="40.0" prefHeight="30.0"
+                                                AnchorPane.leftAnchor="30.0" AnchorPane.topAnchor="190.0">
+                                            <graphic>
+                                                <ImageView fitWidth="20" fitHeight="20" preserveRatio="true">
+                                                    <image>
+                                                        <Image url="@image/magnifier.png" />
+                                                    </image>
+                                                </ImageView>
+                                            </graphic>
+                                        </Button>
+
+                                        <Button fx:id="coordinateButton" onAction="#handleCoordinateButton"
+                                                prefWidth="40.0" prefHeight="30.0"
+                                                AnchorPane.leftAnchor="30.0" AnchorPane.topAnchor="250.0">
+                                            <graphic>
+                                                <ImageView fitWidth="20" fitHeight="20" preserveRatio="true">
+                                                    <image>
+                                                        <Image url="@image/coordinate.png" />
+                                                    </image>
+                                                </ImageView>
+                                            </graphic>
+                                        </Button>
+
+
+                                        <Button fx:id="freshButton" onAction="#handleFreshButton"
+                                                prefWidth="40.0" prefHeight="30.0"
+                                                AnchorPane.leftAnchor="30.0" AnchorPane.topAnchor="310.0">
+                                            <graphic>
+                                                <ImageView fitWidth="20" fitHeight="20" preserveRatio="true">
+                                                    <image>
+                                                        <Image url="@image/refresh.png" />
+                                                    </image>
+                                                </ImageView>
+                                            </graphic>
+                                        </Button>
+
+                                        <Button fx:id="searchButton" onAction="#handleSearchButton"
+                                                prefWidth="40.0" prefHeight="30.0"
+                                                AnchorPane.leftAnchor="30.0" AnchorPane.topAnchor="370.0">
+                                            <graphic>
+                                                <ImageView fitWidth="20" fitHeight="20" preserveRatio="true">
+                                                    <image>
+                                                        <Image url="@image/search.png" />
+                                                    </image>
+                                                </ImageView>
+                                            </graphic>
+                                        </Button>
+
+
+                                    </AnchorPane>
+                                </StackPane>
+
+                            </HBox>
+                        </Tab>
+                        <Tab fx:id="tabKMer" closable="false" text="K-mer">
+                            <ScrollPane fx:id="scrollPane" prefHeight="820.0" prefWidth="1300.0">
+                                <content>
+<!--                                    <Canvas fx:id="KmerCanvas" height="1700.0" width="1300.0" />-->
+                                    <Canvas fx:id="KmerCanvas" width="1300.0" />
+
+                                </content>
+                            </ScrollPane>
+                        </Tab>
+
+                        <Tab fx:id="tabcurve" closable="false" text="Quality">
+                            <ScrollPane fx:id="scrollPane" prefHeight="820.0" prefWidth="1300.0">
+                                <content>
+                                    <Canvas fx:id="qualityCanvas" height="800.0" width="1300.0" />
+                                </content>
+                            </ScrollPane>
+                        </Tab>
+
+
+
+                    </tabs>
+                </TabPane>
+            </children>
+        </AnchorPane>
+    </items>
+</SplitPane>
