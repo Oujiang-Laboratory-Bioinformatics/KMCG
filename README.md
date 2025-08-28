@@ -17,7 +17,7 @@ However, processed data can be visualized by KMGC viewer, which is a JAVA-based 
   * [KMC 3.2](https://github.com/refresh-bio/KMC) 
   * Java run time environment (JRE) 11 or higher
   * Samtools
-  * gcc 11.1.0 or higher
+  * gcc 13.2.0 or higher
   * zlib
 
 ## Installation
@@ -42,7 +42,7 @@ The commands should be run within the KMCG directory path.
 ```
 cd ./KMCG/
 
-g++ -I ./FM-index/FM-Index-master/libcds/includes/ -I ./FM-index/FM-Index-master/libdivsufsort/include/ -W -Wall -O3 -o KMCG kmcg1.0-beta.cpp kmc_file.cpp  nc_utils.cpp  kmer_api.cpp  kmer_defs.h mmer.cpp ./FM-index/FM-Index-master/libfmindex.a ./FM-index/FM-Index-master/libdivsufsort/lib/libdivsufsort.a ./FM-index/FM-Index-master/libcds/lib/libcds.a -lz
+g++ -std=c++17 -fopenmp -I ./FM-index/FM-Index-master/libcds/includes/ -I ./FM-index/FM-Index-master/libdivsufsort/include/ -W -Wall -O3 -o KMCG kmcg1.2-beta.cpp kmc_file.cpp nc_utils.cpp kmer_api.cpp kmer_defs.h mmer.cpp ./FM-index/FM-Index-master/libfmindex.a ./FM-index/FM-Index-master/libdivsufsort/lib/libdivsufsort.a ./FM-index/FM-Index-master/libcds/lib/libcds.a -lz -pthread
 
 ```
 
