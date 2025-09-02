@@ -886,7 +886,7 @@ int main(int argc, char* argv[])
 	uint32 max_count_to_set = 0;
     uint32 xstep=10;
     uint32 ystep=1;
-    uint32 p=10;
+    uint32 p=1;
 	uint32 s=1000;
 	uint32 xbox=1002;
 	uint32 ybox=302;
