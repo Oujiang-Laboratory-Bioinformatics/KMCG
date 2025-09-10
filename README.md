@@ -47,6 +47,8 @@ g++ -std=c++17 -fopenmp -I ./FM-index/FM-Index-master/libcds/includes/ -I ./FM-i
 ```
 If you are utilizing a relatively recent Linux distribution：
 ```
+cd ./KMCG/
+
 g++ -std=c++17 -fopenmp -I ./FM-index/FM-Index-master/libcds/includes/ -I ./FM-index/FM-Index-master/libdivsufsort/include/ -W -Wall -O3 -o KMCG1 kmcg1.2-beta.cpp kmc_file.cpp nc_utils.cpp kmer_api.cpp kmer_defs.h mmer.cpp ./FM-index/FM-Index-master/libfmindex.a ./FM-index/FM-Index-master/libdivsufsort/lib/libdivsufsort.a ./FM-index/FM-Index-master/libcds/lib/libcds.a -lz -pthread -no-pie
 ```
 
