@@ -1992,12 +1992,12 @@ std::cout << "当前时间6: " << std::ctime(&now0);
     std::vector<double> stored_row_sums;        // 存储对应的 row_sum
 	
 
-    // Normalize data
+    // 归一化
     for (size_t i = 0; i < countstep1.size(); ++i) {
         normalize_data(countstep1[i], normalized_vectors[i]);
     }
     
-    // if data rows is not enough
+    // 检查数据
     if (normalized_vectors.size() <= 1) {
         throw std::out_of_range("Error: There are not enough rows to access.");
     }
@@ -2011,7 +2011,6 @@ std::cout << "当前时间6: " << std::ctime(&now0);
         size_t right = window.second;
         
         if (i == 1) {
-            // 检查第一行是否总和全零
             double row_1_sum = std::accumulate(countstep1[1].begin(), countstep1[1].end(), 0.0);
             if (row_1_sum <= 0) {
                 throw std::runtime_error("Error: The total sum of data in the row_1 is <= 0.");
@@ -2089,14 +2088,11 @@ std::cout << "当前时间6: " << std::ctime(&now0);
 
     for (size_t idx = 0; idx < stored_rows.size(); ++idx) {
         size_t i = stored_rows[idx];
-        // size_t left = stored_lefts[idx];
-        // size_t right = stored_rights[idx];
         double row_sum = stored_row_sums[idx];
         if (row_sum <= 0.0) {
             if (percentage_list.empty()) {
                 percentage = 0.0;
             } else {
-                // Copy the percentage from the previous row
                 percentage = percentage_list.back();
             }
             percentage_list.push_back(percentage);
