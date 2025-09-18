@@ -62,16 +62,6 @@ double normalPDF(double x, double mean, double stddev) {
     return coefficient * exponent;
 }
 double calculate_error_in_range(
-/**
- * @brief 计算数据在指定范围内的均方误差（与正态分布PDF比较）。
- * @param data   输入数据
- * @param mean   分布均值
- * @param sigma  分布标准差
- * @param left   计算范围左边界（含）
- * @param right  右边界（含）
- * @return       均方误差
- * @throws       参数无效时抛出异常
- */
     const std::vector<double>& data,
     double mean,
     double sigma,
@@ -94,17 +84,6 @@ double calculate_error_in_range(
     return sum_squared_error;
 }
 std::tuple<double, double> find_initial_sigma(
-/**
- * @brief 在给定范围内搜索最优初始 sigma，使拟合误差最小。
- * @param data        输入数据
- * @param initial_mean 初始均值
- * @param left        计算误差的左边界索引
- * @param right       右边界索引
- * @param sigma_min   sigma 搜索下限
- * @param sigma_max   上限
- * @param sigma_step  步长
- * @return            最优 sigma 和对应的最小误差
- */
     const std::vector<double>& data,
     double initial_mean,
     size_t left,
@@ -130,13 +109,6 @@ double window_sum(const std::vector<double>& line, size_t start, size_t window_s
     return std::accumulate(line.begin() + start, line.begin() + start + window_size, 0.0);
 }
 double calculate_mse(const std::vector<double>& normalized_vector, const std::vector<double>& poisson_values, size_t left, size_t right) {
-/**
- * @brief 计算两向量在指定范围内的均方误差（MSE）。
- * @param normalized_vector 实测数据（归一化）
- * @param poisson_values   理论泊松分布值
- * @param left, right      计算范围边界
- * @return                 MSE 值
- */
     double mse = 0.0;
     size_t count = 0;
     for (size_t i = left; i <= right; ++i) {
@@ -146,12 +118,6 @@ double calculate_mse(const std::vector<double>& normalized_vector, const std::ve
     return mse / count;
 }
 void normalize_data(const std::vector<unsigned long>& data_row, std::vector<double>& normalized_row) {
-/**
- * @brief 将数据行归一化为概率分布（除以总和）。
- *        若总和为零，则跳过归一化并发出警告。
- * @param data_row     输入的整数数据行
- * @param normalized_row 输出的归一化结果（引用）
- */
     long long row_sum = std::accumulate(data_row.begin(), data_row.end(), 0LL);
     if (row_sum != 0) {
         for (size_t i = 0; i < data_row.size(); ++i) {
@@ -163,14 +129,6 @@ void normalize_data(const std::vector<unsigned long>& data_row, std::vector<doub
     }
 }
 size_t find_initial_mean(const std::vector<double>& line) {
-/**
- * @brief 根据累积和的一半，寻找初始均值位置。
- *        从小到大扩展窗口，找到第一个累加和超过总和一半的窗口，
- *        返回该窗口内最大值的索引作为初始均值估计。
- *
- * @param line 输入数据向量（非空）
- * @return 初始均值的索引
- */
     double total_sum = std::accumulate(line.begin(), line.end(), 0.0);
     double target_sum = total_sum * 0.5;
     size_t initial_mean = 0;
@@ -193,17 +151,6 @@ size_t find_initial_mean(const std::vector<double>& line) {
     return initial_mean;
 }
 std::pair<size_t, size_t> find_process_window(const std::vector<double>& line, double percentage) {
-/**
- * @brief 在数据序列中寻找主峰窗口：连续且值不低于阈值（max_value × percentage）的最高峰区间。
- *        若多个窗口峰值相同，则取最长者。
- *
- * @param line       输入数据向量
- * @param percentage 阈值比例 (0.0 ~ 1.0)
- * @return std::pair<size_t, size_t> 主峰窗口的左右索引（闭区间）
- *         若无满足条件的点，返回 (0, 0)
- *
- * @note 使用滑动窗口法；要求 line 非空，stddev > 0。
- */
     double max_value = *std::max_element(line.begin(), line.end());
     double threshold = max_value * percentage;
     size_t best_left = 0, best_right = 0;
@@ -231,22 +178,6 @@ std::pair<size_t, size_t> find_process_window(const std::vector<double>& line, d
     return std::make_pair(best_left, best_right);
 }
 std::tuple<double, double> find_initial_sigma(
-/**
- * @brief 在指定范围内搜索使拟合误差最小的初始 sigma 值。
- *
- * 遍历 [sigma_min, sigma_max] 区间，步长为 sigma_step，对每个 sigma 计算在 [left, right] 
- * 范围内的拟合误差，返回误差最小时对应的 sigma 和误差值。
- *
- * @param data         输入数据
- * @param initial_mean 已知的均值
- * @param left         计算误差的左边界
- * @param right        计算误差的右边界
- * @param sigma_min    sigma 搜索下限（>0）
- * @param sigma_max    上限（>sigma_min）
- * @param sigma_step   步长（>0）
- * @return std::tuple<double, double> 最优 sigma 和对应的最小误差
- * @throws std::invalid_argument 输入无效时抛出
- */
     const std::vector<double>& data,
     double initial_mean,
     double left,
@@ -281,17 +212,6 @@ std::tuple<double, double> find_initial_sigma(
 }
 
 std::tuple<double, double, double> optimize_mean_and_sigma_grid_search(
-/**
- * @brief 网格搜索优化均值和标准差：在初始值附近搜索使拟合误差最小的 (mean, sigma)。
- * @param data        输入数据
- * @param initial_mean 初始均值
- * @param initial_sigma 初始标准差
- * @param left        拟合范围左边界
- * @param right       右边界
- * @param mean_step   均值搜索步长
- * @param sigma_step  sigma搜索步长
- * @return            优化后的均值、sigma 和最小误差
- */
     const std::vector<double>& data,
     double initial_mean,
     double initial_sigma,
@@ -327,14 +247,6 @@ std::tuple<double, double, double> optimize_mean_and_sigma_grid_search(
 }
 
 double calculate_percentage(
-/**
- * @brief 计算原始数据向量和高斯拟合向量在主峰范围内的重叠百分比（小值和 / 大值和 × 100）。
- * @param original_vector 原始数据向量
- * @param gaussian_vector 高斯拟合向量
- * @param left            范围左边界（含）
- * @param right           右边界（含）
- * @return                重叠区域百分比 [0, 100]
- */
     const std::vector<double>& original_vector,
     const std::vector<double>& gaussian_vector,
     size_t left,
@@ -352,16 +264,6 @@ double calculate_percentage(
 }
 
 std::tuple<double, double, double> optimize_sigma_and_row_sum(
-/**
- * @brief 优化 sigma 和幅值系数 A，最大化与原始数据的重叠百分比。
- * @param original_vector 原始数据
- * @param gaussian_vector 用于计算拟合的向量（输出）
- * @param best_mean       固定均值
- * @param best_sigma      初始 sigma
- * @param row_1_sum       基准总和（用于缩放）
- * @param left, right     比较范围
- * @return                最优 sigma、缩放系数 A、最高重叠百分比
- */
     const std::vector<double>& original_vector,
     std::vector<double>& gaussian_vector,
     double best_mean,
@@ -1507,7 +1409,8 @@ std::cout << "当前时间1: " << std::ctime(&now0);
 
 	gzprintf(out_file,"KMCG1\t%u\t%u\t",ybox,xbox);
 	// gzprintf(out_file,"%ld\t",SelectedchrArray.size());
-	gzprintf(out_file,"%d\n",kmerlength);
+	gzprintf(out_file,"%d\t%d\t\n",kmerlength,int(tt));
+
 	for (size_t i = 0; i < sortedChr1.size(); ++i) {
 		gzprintf(out_file,"%s\t",sortedChr1[i].c_str());
 	}
@@ -2090,12 +1993,12 @@ std::cout << "当前时间6: " << std::ctime(&now0);
     std::vector<double> stored_row_sums;        // 存储对应的 row_sum
 	
 
-    // 归一化
+    // Normalize data
     for (size_t i = 0; i < countstep1.size(); ++i) {
         normalize_data(countstep1[i], normalized_vectors[i]);
     }
     
-    // 检查数据
+    // if data rows is not enough
     if (normalized_vectors.size() <= 1) {
         throw std::out_of_range("Error: There are not enough rows to access.");
     }
@@ -2109,6 +2012,7 @@ std::cout << "当前时间6: " << std::ctime(&now0);
         size_t right = window.second;
         
         if (i == 1) {
+            // 检查第一行是否总和全零
             double row_1_sum = std::accumulate(countstep1[1].begin(), countstep1[1].end(), 0.0);
             if (row_1_sum <= 0) {
                 throw std::runtime_error("Error: The total sum of data in the row_1 is <= 0.");
@@ -2186,11 +2090,14 @@ std::cout << "当前时间6: " << std::ctime(&now0);
 
     for (size_t idx = 0; idx < stored_rows.size(); ++idx) {
         size_t i = stored_rows[idx];
+        // size_t left = stored_lefts[idx];
+        // size_t right = stored_rights[idx];
         double row_sum = stored_row_sums[idx];
         if (row_sum <= 0.0) {
             if (percentage_list.empty()) {
                 percentage = 0.0;
             } else {
+                // Copy the percentage from the previous row
                 percentage = percentage_list.back();
             }
             percentage_list.push_back(percentage);
