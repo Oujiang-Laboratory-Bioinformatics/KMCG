@@ -236,13 +236,22 @@ std::tuple<double, double, double> KmerDistributionAnalyzer::finalizeParametersF
     return std::make_tuple(final_sigma, final_scaling_factor, best_percentage);
 }
 
-KmerDistributionAnalyzer::KmerDistributionAnalyzer(const std::vector<std::vector<int>>& kmer_counts)
-    : m_kmer_counts(kmer_counts)
-{}
+
+KmerDistributionAnalyzer::KmerDistributionAnalyzer(const std::vector<std::vector<int>>& kmer_counts, int num_bootstrap_rows)
+    : m_kmer_counts(kmer_counts), m_num_bootstrap_rows(num_bootstrap_rows)
+{
+    if (m_num_bootstrap_rows < 1) {
+        throw std::invalid_argument("Number of bootstrap rows must be at least 1.");
+    }
+}
 
 void KmerDistributionAnalyzer::initialize() {
-    if (m_kmer_counts.size() <= 1) {
-        throw std::out_of_range("At least two rows of data are required for analysis.");
+    // Check if there are enough rows for bootstrapping (n) + error row (1)
+    if (m_kmer_counts.size() <= m_num_bootstrap_rows) {
+        throw std::out_of_range(
+            "At least " + std::to_string(m_num_bootstrap_rows + 1) +
+            " rows of data are required for analysis (num_bootstrap_rows + 1)."
+        );
     }
     const size_t num_rows = m_kmer_counts.size();
 
@@ -255,9 +264,9 @@ void KmerDistributionAnalyzer::initialize() {
     for (size_t i = 1; i < num_rows; ++i) {
         if (m_kmer_counts[i].size() != num_cols) {
             throw std::runtime_error(
-                "Data rows are not uniform (ragged array). Row 0 has " + 
-                std::to_string(num_cols) + " columns, but row " + 
-                std::to_string(i) + " has " + 
+                "Data rows are not uniform (ragged array). Row 0 has " +
+                std::to_string(num_cols) + " columns, but row " +
+                std::to_string(i) + " has " +
                 std::to_string(m_kmer_counts[i].size()) + " columns."
             );
         }
@@ -269,80 +278,110 @@ void KmerDistributionAnalyzer::initialize() {
     for (size_t i = 0; i < num_rows; ++i) {
         normalizeData(m_kmer_counts[i], m_normalized_distributions[i]);
     }
+    
+    // Overlap percentages vector size is (total_rows - 1), as it excludes row 0
+    m_overlap_percentages.resize(num_rows - 1, 0.0);
 }
 
 void KmerDistributionAnalyzer::bootstrapModelParameters() {
-    const size_t bootstrap_row_idx = 1;
-    const auto& data_row = m_kmer_counts[bootstrap_row_idx];
-    const auto& normalized_row = m_normalized_distributions[bootstrap_row_idx];
+    // Loop 'n' times to bootstrap parameters
+    for (int j = 0; j < m_num_bootstrap_rows; ++j) {
+        const size_t bootstrap_row_idx = j + 1; // Use row 1, 2, ..., n
+        const auto& data_row = m_kmer_counts[bootstrap_row_idx];
+        const auto& normalized_row = m_normalized_distributions[bootstrap_row_idx];
 
-    double row_sum = std::accumulate(data_row.begin(), data_row.end(), 0.0);
-    if (row_sum <= 0) {
-        throw std::runtime_error("The total sum of data in the No.1 row is zero or negative.");
-    }
-
-    auto window = findPeakWindow(normalized_row, PEAK_WINDOW_THRESHOLD);
-    size_t left = window.first;
-    size_t right = window.second;
-
-    double init_mean = findInitialMean(normalized_row);
-    
-    double init_sigma, sigma_error;
-    std::tie(init_sigma, sigma_error) = findInitialSigma(normalized_row, init_mean, left, right, SIGMA_GRID_SEARCH_MIN, SIGMA_GRID_SEARCH_MAX, SIGMA_GRID_SEARCH_STEP);
-    
-    double best_mean, best_sigma, min_error;
-    std::tie(best_mean, best_sigma, min_error) = refineMeanAndSigma(normalized_row, init_mean, init_sigma, left, right, MEAN_OPTIMIZE_STEP, SIGMA_OPTIMIZE_STEP);
-
-    m_final_mean = best_mean;
-    m_mean_search_radius = std::min(best_mean - left, right - best_mean);
-
-    std::vector<double> temp_model(normalized_row.size(), 0.0);
-    std::vector<double> data_row_double(data_row.begin(), data_row.end());
-
-    double final_sigma, scaling_factor, opt_percentage;
-    std::tie(final_sigma, scaling_factor, opt_percentage) = finalizeParametersForMaxOverlap(
-        data_row_double, temp_model, best_mean, best_sigma, 
-        row_sum, left, right
-    );
-
-    for (size_t j = 0; j < normalized_row.size(); ++j) {
-        m_fitted_gaussian_models[bootstrap_row_idx][j] = std::ceil(normalPDF(static_cast<double>(j), best_mean, final_sigma) * row_sum * scaling_factor);
-    }
-        
-    for (size_t j = 0; j < normalized_row.size(); ++j) {
-        double actual = static_cast<double>(data_row[j]);
-        double model = m_fitted_gaussian_models[bootstrap_row_idx][j];
-
-        if (actual > model) {
-            double excess = actual - model;
-
-            double distance_from_mean = std::abs(static_cast<double>(j) - best_mean);
-            double penalty_weight = 1.0 + distance_from_mean;
-
-            m_total_weighted_unfitted_sum += (excess * penalty_weight) / final_sigma;
+        double row_sum = std::accumulate(data_row.begin(), data_row.end(), 0.0);
+        if (row_sum <= 0) {
+            throw std::runtime_error("The total sum of data in the No." + std::to_string(bootstrap_row_idx) + " row is zero or negative.");
         }
-    }
-    
-    double overlap_for_percentage = calculateOverlapSum(m_fitted_gaussian_models[bootstrap_row_idx], data_row);
-    m_total_kmer_count += row_sum;
-    m_overlap_percentages.push_back((overlap_for_percentage / row_sum) * 100.0);
 
-    m_base_sigma = final_sigma;
+        auto window = findPeakWindow(normalized_row, PEAK_WINDOW_THRESHOLD);
+        size_t left = window.first;
+        size_t right = window.second;
+
+        double init_mean = findInitialMean(normalized_row);
+        
+        double init_sigma, sigma_error;
+        std::tie(init_sigma, sigma_error) = findInitialSigma(normalized_row, init_mean, left, right, SIGMA_GRID_SEARCH_MIN, SIGMA_GRID_SEARCH_MAX, SIGMA_GRID_SEARCH_STEP);
+        
+        double best_mean, best_sigma, min_error;
+        std::tie(best_mean, best_sigma, min_error) = refineMeanAndSigma(normalized_row, init_mean, init_sigma, left, right, MEAN_OPTIMIZE_STEP, SIGMA_OPTIMIZE_STEP);
+
+        std::vector<double> temp_model(normalized_row.size(), 0.0);
+        std::vector<double> data_row_double(data_row.begin(), data_row.end());
+
+        double final_sigma, scaling_factor, opt_percentage;
+        std::tie(final_sigma, scaling_factor, opt_percentage) = finalizeParametersForMaxOverlap(
+            data_row_double, temp_model, best_mean, best_sigma, 
+            row_sum, left, right
+        );
+
+        // Check if this row has the max k-mer count so far
+        if (row_sum > m_base_sigma_kmer_count) {
+            m_base_sigma_kmer_count = row_sum;
+            m_base_sigma = final_sigma;
+            m_base_sigma_row_index = bootstrap_row_idx;
+            // Use this mean/radius as the starting point for subsequent estimations
+            m_final_mean = best_mean;
+            m_mean_search_radius = std::min(best_mean - left, right - best_mean);
+        }
+
+        for (size_t k = 0; k < normalized_row.size(); ++k) {
+            m_fitted_gaussian_models[bootstrap_row_idx][k] = std::ceil(normalPDF(static_cast<double>(k), best_mean, final_sigma) * row_sum * scaling_factor);
+        }
+            
+        // Reverted to simple logic: Calculate fitted k-mer sum (overlap)
+        double row_fitted_sum = calculateOverlapSum(m_fitted_gaussian_models[bootstrap_row_idx], data_row);
+        
+        // Add to the single group's total
+        m_total_kmer_count_group += row_sum;
+        m_total_fitted_kmer_count_group += row_fitted_sum;
+        
+        // Set percentage by index (row 1 is index 0 in the percentages vector)
+        double fitted_percentage = (row_sum > 0) ? (row_fitted_sum / row_sum) * 100.0 : 0.0;
+        m_overlap_percentages[bootstrap_row_idx - 1] = fitted_percentage;
+        
+        // Calculate PER-ROW Km as requested
+        double per_row_km = 0.0;
+        if (row_sum > 0) {
+            double ratio = row_fitted_sum / row_sum;
+            if (std::abs(ratio - 1.0) < 1e-9) {
+                per_row_km = std::numeric_limits<double>::infinity();
+            } else {
+                per_row_km = 1.0 / (1.0 - ratio);
+            }
+        }
+        
+        m_per_row_results.push_back({
+            bootstrap_row_idx,
+            best_mean, // This row's estimated mean
+            row_sum,
+            row_fitted_sum,
+            fitted_percentage,
+            per_row_km // Store the per-row Km
+        });
+    }
 }
 
 void KmerDistributionAnalyzer::estimateSubsequentRowMeans() {
-    double prev_mean = m_final_mean;
+    // The starting 'prev_mean' is m_final_mean (set to the mean of the max-kmer bootstrap row)
+    double prev_mean = m_final_mean; 
 
-    for (size_t i = 2; i < m_kmer_counts.size(); ++i) {
+    // Start iterating from the first row *after* the bootstrap rows
+    for (size_t i = m_num_bootstrap_rows + 1; i < m_kmer_counts.size(); ++i) {
         const auto& current_row_counts = m_kmer_counts[i];
         const size_t num_cols = current_row_counts.size();
         
-        size_t left = static_cast<size_t>(std::max(0.0, std::floor(prev_mean - (m_mean_search_radius / sqrt(i)))));
-        size_t right = static_cast<size_t>(std::min(static_cast<double>(num_cols - 1), std::floor(prev_mean + (m_mean_search_radius / sqrt(i))) + 1));
+        // Use the mean search radius from the max-kmer bootstrap row
+        // Use the original shrink logic from your user-provided file
+        double shrink_factor = sqrt(static_cast<double>(i)); 
+
+        size_t left = static_cast<size_t>(std::max(0.0, std::floor(prev_mean - (m_mean_search_radius / shrink_factor))));
+        size_t right = static_cast<size_t>(std::min(static_cast<double>(num_cols - 1), std::floor(prev_mean + (m_mean_search_radius / shrink_factor)) + 1));
         
         if (left > right || right >= num_cols) {
-             left = 0;
-             right = (num_cols == 0) ? 0 : num_cols - 1;
+            left = 0;
+            right = (num_cols == 0) ? 0 : num_cols - 1;
         }
 
         double weighted_sum = 0.0;
@@ -353,16 +392,22 @@ void KmerDistributionAnalyzer::estimateSubsequentRowMeans() {
         }
 
         double estimated_mean = (data_sum_in_window != 0.0) ? weighted_sum / data_sum_in_window : prev_mean;
-        prev_mean = estimated_mean;
+        prev_mean = estimated_mean; // Update this group's "previous mean" for the next iteration
 
         double total_kmer_count = std::accumulate(current_row_counts.begin(), current_row_counts.end(), 0.0);
-        m_intermediate_fit_results.push_back({i, estimated_mean, left, right, total_kmer_count});
-        m_total_kmer_count += total_kmer_count;
+        
+        // Add the result to the single intermediate vector
+        m_intermediate_fit_results.push_back(
+            {i, estimated_mean, left, right, total_kmer_count}
+        );
     }
 }
 
 void KmerDistributionAnalyzer::averageRowMeans() {
+    // Average the means from the *subsequent* rows (n+1 onward)
     if (m_intermediate_fit_results.empty()) {
+        // No subsequent rows. The final mean remains the one
+        // from the max-kmer bootstrap row.
         return;
     }
 
@@ -371,62 +416,106 @@ void KmerDistributionAnalyzer::averageRowMeans() {
         sum_of_means += result.estimated_mean;
     }
     
+    // Overwrite the bootstrap mean with the average of *only* the subsequent means.
     m_final_mean = sum_of_means / m_intermediate_fit_results.size();
 }
 
 void KmerDistributionAnalyzer::fitModelToSubsequentRows() {
+    // Get the final, averaged mean for all subsequent rows
+    double group_mean = m_final_mean;
+
+    // Iterate over the intermediate results (rows n+1 onward)
     for (const auto& result : m_intermediate_fit_results) {
-        size_t i = result.row_index;
+        size_t i = result.row_index; // The actual row index in m_kmer_counts
+        double row_fitted_sum = 0.0;
+        double fitted_percentage = 0.0;
         
         if (result.total_kmer_count <= 0.0) {
-            double last_percentage = m_overlap_percentages.empty() ? 0.0 : m_overlap_percentages.back();
-            m_overlap_percentages.push_back(last_percentage);
-            continue;
-        }
-
-        double sigma = m_base_sigma / sqrt(i);
-        for (size_t j = 0; j < m_kmer_counts[i].size(); ++j) {
-            m_fitted_gaussian_models[i][j] = std::ceil(normalPDF(static_cast<double>(j), m_final_mean, sigma) * result.total_kmer_count);
-        }
-        
-        for (size_t j = 0; j < m_kmer_counts[i].size(); ++j) {
-            double actual = static_cast<double>(m_kmer_counts[i][j]);
-            double model = m_fitted_gaussian_models[i][j];
-
-            if (actual > model) {
-                double excess = actual - model;
-
-                double distance_from_mean = std::abs(static_cast<double>(j) - m_final_mean);
-                double penalty_weight = 1.0 + (distance_from_mean / sigma);
-
-                m_total_weighted_unfitted_sum += (excess * penalty_weight);
+            // This row has no data. Copy the overlap percentage from the
+            // previous row (which must be i-1).
+            fitted_percentage = m_overlap_percentages.empty() ? 0.0 : m_overlap_percentages.back();
+            m_overlap_percentages.push_back(fitted_percentage);
+        } 
+        else 
+        {
+            // sigma_i = (sigma_k * sqrt(k)) / sqrt(i)
+            double sigma = (m_base_sigma * sqrt(static_cast<double>(m_base_sigma_row_index))) / sqrt(static_cast<double>(i));
+            
+            for (size_t k = 0; k < m_kmer_counts[i].size(); ++k) {
+                m_fitted_gaussian_models[i][k] = std::ceil(normalPDF(static_cast<double>(k), group_mean, sigma) * result.total_kmer_count);
             }
+            
+            // Reverted to simple logic
+            row_fitted_sum = calculateOverlapSum(m_fitted_gaussian_models[i], m_kmer_counts[i]);
+            fitted_percentage = (result.total_kmer_count > 0) ? (row_fitted_sum / result.total_kmer_count) * 100.0 : 0.0;
+            m_overlap_percentages.push_back(fitted_percentage);
         }
-        double overlap_for_percentage = calculateOverlapSum(m_fitted_gaussian_models[i], m_kmer_counts[i]);
         
-        m_overlap_percentages.push_back((overlap_for_percentage / result.total_kmer_count) * 100.0);
+        // Add to the single group's totals
+        m_total_kmer_count_group += result.total_kmer_count;
+        m_total_fitted_kmer_count_group += row_fitted_sum;
+
+        // Calculate PER-ROW Km as requested
+        double per_row_km = 0.0;
+        if (result.total_kmer_count > 0) { // Use result.total_kmer_count
+            double ratio = row_fitted_sum / result.total_kmer_count;
+            if (std::abs(ratio - 1.0) < 1e-9) {
+                per_row_km = std::numeric_limits<double>::infinity();
+            } else {
+                per_row_km = 1.0 / (1.0 - ratio);
+            }
+        } else if (!m_per_row_results.empty()) {
+             // If row is empty, copy the Km from the previous row
+            per_row_km = m_per_row_results.back().per_row_km; 
+        }
+
+        m_per_row_results.push_back({
+            i,
+            result.estimated_mean, // This row's estimated mean
+            result.total_kmer_count,
+            row_fitted_sum,
+            fitted_percentage,
+            per_row_km // Store the per-row Km
+        });
     }
 }
 
 void KmerDistributionAnalyzer::calculateFinalMetric() {
     double row_0_sum = std::accumulate(m_kmer_counts[0].begin(), m_kmer_counts[0].end(), 0.0);
-
-    const double ROW_0_PENALTY_WEIGHT = 1.0;
-    double weighted_row_0_unfitted = row_0_sum * ROW_0_PENALTY_WEIGHT;
-
-    double total_weighted_unfitted = weighted_row_0_unfitted + m_total_weighted_unfitted_sum;
     
-    m_total_kmer_count += row_0_sum;
+    // The global total k-mer count starts with row 0
+    m_total_kmer_count = row_0_sum;
 
-    if (m_total_kmer_count == 0) {
-        throw std::runtime_error("Total k-mer count is zero. Cannot divide by zero.");
-    }
+    // Calculate the final Km for the single group
+    // Total k-mers is the accumulated sum + row 0
+    double total_kmer_count_for_group = m_total_kmer_count_group + row_0_sum;
+    // Fitted k-mers is just the accumulated sum (row 0 is pure penalty)
+    double total_fitted_count_for_group = m_total_fitted_kmer_count_group;
+    
+    // Store these final values for the getter
+    m_final_total_kmer_count = total_kmer_count_for_group;
+    m_final_fitted_kmer_count = total_fitted_count_for_group;
 
-    if (total_weighted_unfitted <= 1e-9) {
-        m_goodness_of_fit_metric = std::numeric_limits<double>::infinity();
+    // Add this group's count to the global total
+    m_total_kmer_count += m_total_kmer_count_group; 
+
+    if (total_kmer_count_for_group == 0) {
+        m_goodness_of_fit_metric = 0.0; 
     } else {
-        m_goodness_of_fit_metric = m_total_kmer_count / total_weighted_unfitted;
+        double ratio = total_fitted_count_for_group / total_kmer_count_for_group;
+        
+        if (std::abs(ratio - 1.0) < 1e-9) {
+            m_goodness_of_fit_metric = std::numeric_limits<double>::infinity();
+        } else {
+            m_goodness_of_fit_metric = 1.0 / (1.0 - ratio);
+        }
     }
+
+    // Sort the detailed results by row index for clean printing
+    std::sort(m_per_row_results.begin(), m_per_row_results.end(), 
+        [](const PerRowAnalysisResult& a, const PerRowAnalysisResult& b) {
+            return a.row_index < b.row_index;
+    });
 }
 
 double KmerDistributionAnalyzer::calculateOverlapSum(const std::vector<double>& model_values, const std::vector<int>& actual_values) {
@@ -440,7 +529,22 @@ double KmerDistributionAnalyzer::calculateOverlapSum(const std::vector<double>& 
 
 
 void KmerDistributionAnalyzer::runAnalysis() {
-    m_total_weighted_unfitted_sum = 0.0;
+    // Reset all accumulators
+    m_total_kmer_count_group = 0.0;
+    m_total_fitted_kmer_count_group = 0.0;
+    m_final_total_kmer_count = 0.0;
+    m_final_fitted_kmer_count = 0.0;
+
+    m_base_sigma_kmer_count = -1.0; // Reset to -1 to find max
+    m_base_sigma = 0.0;
+    m_base_sigma_row_index = 1;
+    m_final_mean = 0.0;
+    m_mean_search_radius = 0.0;
+
+    m_intermediate_fit_results.clear();
+    m_total_kmer_count = 0.0;
+    m_per_row_results.clear(); // Clear the detailed log
+    
     initialize();
     bootstrapModelParameters();
     estimateSubsequentRowMeans();
