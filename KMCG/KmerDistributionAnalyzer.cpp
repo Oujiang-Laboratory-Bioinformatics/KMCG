@@ -325,6 +325,14 @@ void KmerDistributionAnalyzer::calculateFinalMetric() {
 
     if (!m_kmer_counts.empty()) {
         const auto& row0 = m_kmer_counts[0];
+
+        if (start_idx < row0.size()) {
+            // Warning: truncation index value is 0
+            if (row0[start_idx] == 0) {
+                std::cout << "  [Warning] Row 0 truncation index (" << start_idx 
+                          << ") has a count of 0! " << std::endl;
+            }
+        }
         
         if (start_idx >= row0.size()) {
             // Threshold is beyond the data size, keep nothing
