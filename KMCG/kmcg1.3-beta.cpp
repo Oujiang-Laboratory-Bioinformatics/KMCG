@@ -2059,7 +2059,7 @@ std::cout << "当前时间3: " << std::ctime(&now0);
                                     std::cout << "检查点33" << " 抵达成功.\n";
                          now0 = std::time(nullptr);
 std::cout << "当前时间3: " << std::ctime(&now0);
-        if(gc!=0)
+        if(gc)
         {
             for (int i = 0; i < sizeofy; ++i) 
                 {
