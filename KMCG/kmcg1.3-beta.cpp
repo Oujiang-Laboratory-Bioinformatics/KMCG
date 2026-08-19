@@ -44,6 +44,7 @@
 #include <cstdint>
 #include <iomanip> 
 #include <mutex>
+#include <inttypes.h>
 #include "./FM-index/FM-Index-master/FM.h"
 #include "KmerDistributionAnalyzer.h"		
 #ifndef M_PI
@@ -782,6 +783,7 @@ int main(int argc, char* argv[])
 	CKMCFile kmer_data_base1;
     CKMCFile kmer_data_base3;
     CKMCFile kmer_data_base4;
+    CKMCFile kmer_data_base5;
 	CKMCFile kmer_data_basefor3kmc;
 	int32 i;
 	uint32 min_count_to_set = 0;
@@ -808,6 +810,7 @@ int main(int argc, char* argv[])
     std::string input_file_name4;
 	std::string output_file_name;
 	std::string output_file_name1;
+    std::vector<std::vector<double>> fitted_models;
     // FILE * out_file;
 	gzFile  out_file;
 	// gzFile  out_file1;
@@ -827,8 +830,20 @@ int main(int argc, char* argv[])
 	uint64 sumofrow=0;
 	uint64 maxsumofrow=0;
 	uint64 maxnumofsumkmer=0;
+    uint64 kmernumberofassembly=0;
+    uint64 kmernumberofassembly1=0;
+    uint64 kmernumberofassemblyof1=0;
+    uint64 kmernumberofassemblyof2=0;
+    uint64 maxkmernumberofassembly=0;
+    uint64 testkmernumberofassembly=0;
+    uint64 kmernumberofraw=0;
 	double kii;
     double kom=0;
+    double kmm=0;
+    double kpp=0;
+    // double ky0=0;
+    double knor1=0;
+    double knor2=0;
     // double kop=0;
 	std::random_device rd;          
     std::mt19937 gen(rd());    // 引擎只需初始化一次
@@ -1119,6 +1134,7 @@ input_file_name1=tempDirNameofinput_file_name1;
 	vector<vector<uint64>> countstep2(521, vector<uint64>(130));
     vector<vector<uint64>> countstep3(521, vector<uint64>(130));
 	std::vector<std::vector<uint64>> kmernumofbox(ybox, std::vector<uint64>(xbox, 0));
+    std::vector<std::vector<double>> mm(521, std::vector<double>(130));
 	std::string tempFileName ="";
 	std::string tempDirName = "";
 	bool tempDirCreated = false;
@@ -1286,14 +1302,7 @@ std::cout << "当前时间1: " << std::ctime(&now0);
     std::cerr << "Output filename1 is empty!" << std::endl;
     return EXIT_FAILURE;
 	}
-	// if((out_file1 = gzopen (output_file_name1.c_str(),"wb")) == NULL)
-	// {   
-	// 	std::cerr << "Failed to open output gz file1."  << std::endl;
-	// 	print_info();
-	// 	return EXIT_FAILURE;
-	// }
 	gzprintf(out_file,"KMCG1\t%u\t%u\t",ybox,xbox);
-	// gzprintf(out_file,"%ld\t",SelectedchrArray.size());
 	gzprintf(out_file,"%d\t%d\t\n",kmerlength,int(tt));
 	for (size_t i = 0; i < sortedChr1.size(); ++i) {//输出染色体的名称
 		gzprintf(out_file,"%s\t",sortedChr1[i].c_str());
@@ -1487,6 +1496,8 @@ std::cout << "当前时间2: " << std::ctime(&now0);
 				int sizeofY =xbox;
 					while (kmer_data_base1.ReadNextKmer(kmer_object, counter))
 					{
+                    if(counter>3000000){std::cout << kmer_object.to_string() << std::endl;}
+                    kmernumberofraw+=counter;
 					if (readtime%p==0)
 					{
 						bool is_kmer_found = kmer_data_base.CheckKmer(kmer_object, counter1);
@@ -1585,9 +1596,20 @@ std::cout << "当前时间3: " << std::ctime(&now0);
 				const int sizeofy = ybox;
 					while (kmer_data_base4.ReadNextKmer(kmer_object, counter))
 					{
+                    if(counter>maxkmernumberofassembly)
+                    {
+                        maxkmernumberofassembly=counter;
+                        std::cout << "maxkmernumberofassembly="<<maxkmernumberofassembly<< std::endl;
+
+                    }
+                    kmernumberofassembly+=counter;
+                    kmernumberofassembly1++;
+                    if(counter==1){kmernumberofassemblyof1++;}
+                    if(counter==2){kmernumberofassemblyof2++;}
 					if (readtime%p==0)
 					{
 						bool is_kmer_found = kmer_data_base3.CheckKmer(kmer_object, counter1);
+                        testkmernumberofassembly+=counter1;
 					// if((counter==1&&59<counter1&&counter1<91))
 						if (is_kmer_found) 
 						{
@@ -1717,14 +1739,7 @@ std::cout << "当前时间5: " << std::ctime(&now0);
 				std::cout << "检查点6" << " 抵达成功.\n";
 			 now0 = std::time(nullptr);
 std::cout << "当前时间6: " << std::ctime(&now0);
-				for (size_t i = 0; i < countstep1.size(); ++i) //输出压缩矩阵
-				{
-					for (size_t j = 0; j < countstep1[i].size(); ++j) 
-					{
-						gzprintf(out_file, "%ld\t", countstep1[i][j]); 
-					}
-					gzprintf(out_file, "\n");
-				}
+
 	/*
 	KmerDistributionAnalyzer to get percentage list and Km
 	*/   
@@ -1736,17 +1751,48 @@ std::cout << "当前时间6: " << std::ctime(&now0);
 		KmerDistributionAnalyzer analyzer(countstep1);
 		// 2. Run the entire analysis process
 		analyzer.runAnalysis();
+
+        // 1. 获取原始分析结果 (只读)
+        const auto& source_models = analyzer.getFittedModels();
+
+        // 3. 调整大小并拷贝数据
+        fitted_models.resize(source_models.size());
+        for (size_t i = 0; i < source_models.size(); ++i) {
+            fitted_models[i].resize(source_models[i].size());
+            for (size_t k = 0; k < source_models[i].size(); ++k) {
+                fitted_models[i][k] = source_models[i][k];
+            }
+        }
+
+
 		// 3. Output Percentage List & Km
-		gzprintf(out_file, "\n");
 		const auto& results = analyzer.getPerRowAnalysisResults();
 		for (const auto& res : results) {
-				gzprintf(out_file, "%.2f\t", res.row_fitted_pct);
+				// gzprintf(out_file, "%.2f\t", res.row_fitted_pct);
 				if (res.row_index == 1) {
 						best_mean = res.row_mean;
 						final_sigma = res.row_sigma;
 						row1_found = true;
 				}
 		}
+        for (size_t i = 0; i < countstep1.size(); ++i) //输出压缩矩阵
+                {
+                    for (size_t j = 0; j < countstep1[i].size(); ++j) 
+                    {
+                        if(i==0&&(j<best_mean-4*final_sigma))
+                        {
+                            gzprintf(out_file, "0\t"); 
+                        }
+                        else
+                        {
+                            gzprintf(out_file, "%ld\t", countstep1[i][j]);
+                        }
+                    }
+                    gzprintf(out_file, "\n");
+                }
+        for (const auto& res : results) {
+                gzprintf(out_file, "%.2f\t", res.row_fitted_pct);
+        }
 			// gzprintf(out_file, "\nKm= %.6f\t", analyzer.getGoodnessOfFitMetric()); 
 			if(row1_found) {
 						// 这里可以根据需要调整，或者不输出，只用于内部计算
@@ -1768,7 +1814,7 @@ std::cout << "当前时间6: " << std::ctime(&now0);
 	if (sumforki0 != 0 && (sumforki0 + sumforki) != 0)
 	{
 		kii=1/(1-((sumforki*1.0)/(sumforki0+sumforki)));
-		gzprintf(out_file, "Ki= %.6f\t", kii);
+		gzprintf(out_file, "Ki:%.6f\t", kii);
 	}
 	else if(sumforki0 == 0)
 	{
@@ -1780,89 +1826,24 @@ std::cout << "当前时间6: " << std::ctime(&now0);
 	{
 		std::cerr << "Error:  All data are equal to zero." << std::endl;
 	}
+                                                                                                //    以下代码是纠正GC含量图的代码
+// 使用引用避免重复访问同一行数据
+const auto& target_row = countof32[maxnumofsumkmer];
+auto max_it = std::max_element(target_row.begin(), target_row.end());
+uint64_t max_value = *max_it;
 
-// // 使用引用避免重复访问同一行数据
-// const auto& target_row = countof32[maxnumofsumkmer];
-// // auto max_it = std::max_element(target_row.begin(), target_row.end());
-// // uint64_t max_value = *max_it;
-// // std::cout << "max_value: " << max_value << "\n";
-
-// // 如果需要最大值的索引位置（注释中提示的）
-// // size_t max_index = std::distance(target_row.begin(), max_it);
-
-// // 预计算避免重复访问
-// // const auto& count_row = countnumof32[maxnumofsumkmer];
+//预计算避免重复访问
+const auto& count_row = countnumof32[maxnumofsumkmer];
 
 // std::cout << "系数计算结果:\n";
-// for (size_t i = 0; i < 32; ++i) {
-//     // 避免整数除法，直接使用浮点数除法
-//     double ratio = static_cast<double>(max_value) / count_row[i];
-//     coefmatrixofcount[i] = ratio;
+for (size_t i = 0; i < 32; ++i) {
+    // 避免整数除法，直接使用浮点数除法
+    double ratio = static_cast<double>(max_value) / count_row[i];
+    coefmatrixofcount[i] = ratio;
     
-//     // 如果不需要详细输出，可以移除或条件化这些输出
-//     std::cout << "除数: " << count_row[i] 
-//               << ", 系数: " << ratio << "\n";
-// }
-		// 遍历每一行，找到每行的最大值
-		// for (size_t i = 0; i < countnumof32.size(); ++i) 
-		// {
-		// 	// 使用std::max_element找到当前行的最大值
-		// 	auto maxIt = std::max_element(countnumof32[i].begin(), countnumof32[i].end());
-			
-		// 	if (maxIt != countnumof32[i].end()) {
-		// 		maxValues[i] = *maxIt;
-		// 	} else {
-		// 		// 处理空行的情况
-		// 		maxValues[i] = 0;  // 或者根据需求设置其他默认值
-		// 	}
-		// }
-        // for (int i = 0; i <sizeofy ; ++i)
-		// {
-		// 	for (int j = 0; j <32 ; ++j) 
-		// 		{		
-		// 		gzprintf(out_file, "%ld\t", countnumof32[i][j]);
-		// 		}
-		// 	gzprintf(out_file, "\n");
-		// }
-//    以下代码是纠正GC含量图的代码
-	// gzprintf(out_file1,"KMCG1\t%u\t%u\t",ybox,xbox);
-	// // gzprintf(out_file,"%ld\t",SelectedchrArray.size());
-	// gzprintf(out_file1,"%d\t%d\t\n",kmerlength,int(tt));
-	// for (size_t i = 0; i < sortedChr1.size(); ++i) {
-	// 	gzprintf(out_file1,"%s\t",sortedChr1[i].c_str());
-	// }
-	// for (size_t i = 0; i < sortedChr2.size(); ++i) {
-	// 	gzprintf(out_file1,"%s",sortedChr2[i].c_str());
-	// 	if ((i+1)%100!=0){
-	// 		if(i!=sortedChr2.size()-1)
-	// 		{
-	// 		gzprintf(out_file1,":");
-	// 		}
-	// 	}
-	// 	if ((i+1)%100==0)
-	// 	{
-	// 	gzprintf(out_file1,"\t");
-	// 	}
-	// }	
-	// gzprintf(out_file1,"\n");
-	// for (size_t i = 0; i < sortedChr1.size(); ++i) 
-	// {
-	// 	if((int)ceil((double)sortedChrnumber1[i] / tt)>999)
-	// 	{
-	// 		tt=tt*10;
-	// 	}
-	// }
-	// for (size_t i = 0; i < sortedChr1.size(); ++i) {
-	// 	gzprintf(out_file1, "%d\t", (int)ceil((double)sortedChrnumber1[i] / tt));
-	// }
-	// for (size_t i = 0; i < (sortedChr2.size()/100); ++i) {
-	// 	gzprintf(out_file1,"100\t");
-	// }
-	// if(sortedChr2.size()%100!=0)
-	// {
-	// 	gzprintf(out_file1,"%zu",(sortedChr2.size()%100));
-	// }
-	// gzprintf(out_file1,"\n");
+
+}
+
 			if (!kmer_data_base.OpenForRA(input_file_name1))
 			{   
 				printf("OpenForRA0 failed");
@@ -1918,6 +1899,10 @@ std::cout << "当前时间6: " << std::ctime(&now0);
 									count_gc++;
 								}
 							}
+                            if(counter>best_mean-4*final_sigma)
+                            {
+                                kom+=counter/best_mean;
+                            }
 							counter=counter*coefmatrixofcount[count_gc];
 							if (counter <=xstep*(xbox-2) )
 							{	           
@@ -1928,6 +1913,7 @@ std::cout << "当前时间6: " << std::ctime(&now0);
 								y=sizeofY-1;
 							}
 							count1[0][y]++;
+
 							countstep2[0][counter > 128 ? 129 : counter]++;
 							gccount1[0][y]+=count_gc;
 						}
@@ -1939,7 +1925,7 @@ std::cout << "当前时间6: " << std::ctime(&now0);
 						std::cout << "检查点3" << " 抵达成功.\n";
 						 now0 = std::time(nullptr);
 std::cout << "当前时间3: " << std::ctime(&now0);
-			kmer_data_base.Close();
+			// kmer_data_base.Close();
 			kmer_data_base1.Close();
 			if (!kmer_data_base3.OpenForRA(input_file_name))
 			{   
@@ -1988,7 +1974,8 @@ std::cout << "当前时间3: " << std::ctime(&now0);
 						bool is_kmer_found = kmer_data_base3.CheckKmer(kmer_object, counter1);
 					// if((counter==1&&59<counter1&&counter1<91))					
 						if (is_kmer_found) 
-						{
+						{   
+                            // std::cout << "k0-的y>0时x："<<static_cast<uint64_t>(counter1) <<std::endl;    
 							int count_gc = 0;
 							std::string kmer_str = kmer_object.to_string();  // 提前保存字符串
 							for (char ch : kmer_str) {                      // 遍历已保存的字符串
@@ -1996,6 +1983,25 @@ std::cout << "当前时间3: " << std::ctime(&now0);
 									count_gc++;
 								}
 							}
+
+
+                            if(counter!=0)
+                            {              
+                                // std::cout << "k0-的y>0时y："<<static_cast<uint64_t>(counter) <<"x:"<<static_cast<uint64_t>(counter1) <<std::endl;       
+                                if ((counter1/counter)>128)
+                                {
+                                    kom+=(counter1/best_mean)-counter;
+                                }
+                            } 
+                            else
+                            {
+                                // std::cout << "k0-的y==0时y："<<static_cast<uint64_t>(counter) <<"x:"<<static_cast<uint64_t>(counter1) <<std::endl;   
+                                // std::cout << "k0-的y==0,miu-4sigma:"<<best_mean-4*final_sigma<<std::endl;  
+                                if(counter1>best_mean-4*final_sigma)
+                                    {
+                                        kom+=counter1/best_mean;
+                                    }
+                            }
 							counter1=counter1*coefmatrixofcount[count_gc];
 							if (counter1 <=xstep*(xbox-2))
 							{				   			
@@ -2013,18 +2019,7 @@ std::cout << "当前时间3: " << std::ctime(&now0);
 							{
 								y=sizeofy-1;    
 							}					
-							count1[y][x]++;   
-                            if(counter1!=0)
-                            {                       
-                                if ((counter/counter1)>128)
-                                {
-                                    kom+=(counter/best_mean)-counter1;
-                                }
-                            } 
-                            else
-                            {
-                                if(counter>128){kom+=counter/best_mean;}
-                            }
+							count1[y][x]++;           
 							countstep2[counter < 513 ? counter : 512+findN(counter)-9][isInteger(counter1/(counter*1.0))? ((counter1/counter)<129? (counter1/counter):129): (floor(counter1/counter*1.0)<129? floor(counter1/counter*1.0):129)]++;
 							gccount1[y][x]+=count_gc;
 						}			
@@ -2044,7 +2039,6 @@ std::cout << "当前时间3: " << std::ctime(&now0);
 								y=sizeofy-1;
 								}
 							count1[y][0]++;
-                            if(counter>128){kom+=counter/best_mean;}
 							countstep2[counter < 513 ? counter : 512+findN(counter)-9][0]++;
 							gccount1[y][0]+=count_gc;
 						}					
@@ -2055,7 +2049,53 @@ std::cout << "当前时间3: " << std::ctime(&now0);
 			}
 			kmer_data_base3.Close();
 			kmer_data_base4.Close();
-            gzprintf(out_file, "k-:%.3f\n", kom);
+
+        for (size_t i = 0; i < countstep1.size(); ++i) //输出压缩矩阵
+                {
+                    for (size_t j = 0; j < countstep1[i].size(); ++j) 
+                    {
+                        mm[i][j] = countstep1[i][j] - fitted_models[i][j];
+                        // if(i==0)
+                        // {
+                        //     kmm+=countstep1[i][j]*((j/best_mean));
+                        //     ky0+=countstep1[i][j]*((j/best_mean));
+                        // }
+                        if(0<i&&i<513)
+                        {
+                            if(j<size_t(best_mean))
+                            {
+                                kpp+=max(0.0,(countstep1[i][j]-fitted_models[i][j]))*(1-(j/best_mean))*i;
+                            }
+                            else if(size_t(best_mean)<j&&j<129)
+                            {
+                                kmm+=max(0.0,(countstep1[i][j]-fitted_models[i][j]))*((j/best_mean)-1)*i;
+                                knor1+=max(0.0,(countstep1[i][j]-fitted_models[i][j]))*((j/best_mean)-1)*i;
+                            }
+                        }
+                        else if(512<i&&i<519)
+                        {
+                            if(j<size_t(best_mean))
+                            {
+                                kpp+=max(0.0,(countstep1[i][j]-fitted_models[i][j]))*(1-(j/best_mean))* std::pow(2.0,(i-512)+8.3);
+                            }
+                            else if(size_t(best_mean)<j&&j<129)
+                            {
+                                kmm+=max(0.0,(countstep1[i][j]-fitted_models[i][j]))*((j/best_mean)-1)* std::pow(2.0,(i-512)+8.3);
+                                knor2+=max(0.0,(countstep1[i][j]-fitted_models[i][j]))*((j/best_mean)-1)* std::pow(2.0,(i-512)+8.3);
+                            }
+                        }  
+                    }
+                }
+            kmm+=kom;
+            gzprintf(out_file, "k-:%.3f\t", (kmm/(kmernumberofassembly+kmm-kpp))*100);
+            gzprintf(out_file, "k+:%.3f\t", (kpp/kmernumberofassembly)*100);
+            std::cout <<"k0-:"<<kom << "\n";
+            std::cout <<"knor1-:"<<knor1 << "\n";
+            std::cout <<"knor2-:"<<knor2 << "\n";
+            std::cout <<"kmernumberofassembly="<<kmernumberofassembly << "\n";
+            gzprintf(out_file,"kmernumberofassembly:");
+            gzprintf(out_file, "%" PRIu64 "\n", kmernumberofassembly);
+
                                     std::cout << "检查点33" << " 抵达成功.\n";
                          now0 = std::time(nullptr);
 std::cout << "当前时间3: " << std::ctime(&now0);
@@ -2101,146 +2141,10 @@ std::cout << "当前时间3: " << std::ctime(&now0);
                                 std::cout << "检查点333" << " 抵达成功.\n";
                          now0 = std::time(nullptr);
 std::cout << "当前时间3: " << std::ctime(&now0);
-        // gzprintf(out_file, "%d\n", maxnumofsumkmer); 
-        // for (int j = 0; j <sizeofx ; ++j) 
-        //  {       
-        //      if(count[maxnumofsumkmer][j]!=0)
-        //      {
-        //          gzprintf(out_file, "%.2f\t", static_cast<double>(gccount[maxnumofsumkmer][j]) / count[maxnumofsumkmer][j]);}
-        //      else
-        //      {
-        //          gzprintf(out_file, "0\t");
-        //      }
-        //  }
-        //  gzprintf(out_file, "\n");
-auto max_it = std::max_element(countnumof32[maxnumofsumkmer].begin(), 
-                                countnumof32[maxnumofsumkmer].end());
-// uint64_t max_value = *max_it;
-int max_index = std::distance(countnumof32[maxnumofsumkmer].begin(), max_it);
-std::cout << "max_index " << max_index << "\n";
-std::cout << "这里输出系数" << "\n";
-for (int i = 0; i < 32; ++i)
-{
-    coefmatrixofcount0[i] = static_cast<double>(countof32[maxnumofsumkmer][i]) 
-                           / (static_cast<double>(countnumof32[maxnumofsumkmer][i]) 
-                           * static_cast<double>(maxnumofsumkmer));
-    // 使用 fixed 和 setprecision 控制输出
-    std::cout << std::fixed << std::setprecision(6); // 例如，保留6位小数
-    std::cout << "u系数 [" << i << "] = " << coefmatrixofcount0[i] << "\n";   
-}
-for (int i = 0; i < 32; ++i)
-{
-    std::cout << std::fixed << std::setprecision(6); // 同样设置第二个循环的输出
-    std::cout << "coefmatrixofcount系数max [" << max_index << "] = " << coefmatrixofcount0[max_index] << "\n";
-    std::cout << "coefmatrixofcount系数 [" << i << "] = " << coefmatrixofcount0[i] << "\n";
-    coefmatrixofcount[i] = coefmatrixofcount0[max_index] / coefmatrixofcount0[i];
-    std::cout << "系数 [" << i << "] = " << coefmatrixofcount[i] << "\n";
-}
-			// for (int i = 0; i < sizeofy; ++i) 
-			// 	{	
-			// 		for (int j = 0; j <sizeofx ; ++j) {
-			// 			gzprintf(out_file1, "%ld\t", count1[i][j]); 
-			// 		}
-			// 		gzprintf(out_file1, "\n");
-			// 	}
-			// 	gzprintf(out_file1, "\n");
-			// 	for (int i = 0; i < sizeofy; ++i)	
-			// 	{
-			// 	    gzprintf(out_file1, "\n");
-			// 	}
-			// 	gzprintf(out_file1, "\n");
-			// 	for (size_t i = 0; i < countstep2.size(); ++i) 
-			// 	{
-			// 		for (size_t j = 0; j < countstep2[i].size(); ++j) 
-			// 		{
-			// 			gzprintf(out_file1, "%ld\t", countstep2[i][j]); 
-			// 		}
-			// 		gzprintf(out_file1, "\n");
-			// 	}
-	// /*
-	// KmerDistributionAnalyzer to get percentage list and Km
-	// */   
-	//  best_mean = 0.0;
-	//  final_sigma = 0.0;
-	//  row1_found = false;
-	// try {
-	// 	// 1. Create the analyzer with the data
-	// 	KmerDistributionAnalyzer analyzer(countstep2);
-	// 	// 2. Run the entire analysis process
-	// 	analyzer.runAnalysis();
-	// 	// 3. Output Percentage List & Km
-	// 	gzprintf(out_file1, "\n");
-	// 	const auto& results = analyzer.getPerRowAnalysisResults();	
-	// 	for (const auto& res : results) {
-	// 			gzprintf(out_file1, "%.2f\t", res.row_fitted_pct);				
-	// 			if (res.row_index == 1) {
-	// 					best_mean = res.row_mean;
-	// 					final_sigma = res.row_sigma;
-	// 					row1_found = true;
-	// 			}
-	// 	}			
-	// 		gzprintf(out_file1, "\nKm= %.6f\t", analyzer.getGoodnessOfFitMetric()); 
-	// 		if(row1_found) {
-	// 					// 这里可以根据需要调整，或者不输出，只用于内部计算
-	// 					gzprintf(out_file1, "Row1_Mean=%.4f\tRow1_Sigma=%.4f\t", best_mean, final_sigma);
-	// 		}
-	// } catch (const std::exception& e) {
-	// 		std::cerr << "Error during Kmer Analysis: " << e.what() << std::endl;
-	// 		gzprintf(out_file1, "\nError_in_Analysis\nKm= 0.000000\t");
-	// }
-	// for(size_t i=std::max(static_cast<int>(std::floor(best_mean-4*final_sigma)), 11);i<102;i++)
-	// {
-	// 		sumforki0+=ki0[i];
-	// }
-	// for(size_t i=std::max(static_cast<int>(std::floor(best_mean-4*final_sigma)), 11);i<102;i++)
-	// {
-	// 		sumforki+=ki[i];
-	// }
-	// if (sumforki0 != 0 && (sumforki0 + sumforki) != 0)
-	// {
-	// 	kii=1/(1-((sumforki*1.0)/(sumforki0+sumforki)));
-	// 	gzprintf(out_file1, "Ki= %.6f\n", kii);
-	// }
-	// else if(sumforki0 == 0)
-	// {
-	// sumforki0=1;
-	// kii=1/(1-((sumforki*1.0)/(sumforki0+sumforki)));
-	// gzprintf(out_file1, "Ki= %.6f\n", kii);	
-	// }
-	// else
-	// {
-	// 	std::cerr << "Error:  All data are equal to zero." << std::endl;
-	// }
-				// gzprintf(out_file1, "GCpercentage1\t%\n");//这一段是输出GC矫正矩阵
-				// for (int i = 0; i < sizeofy; ++i) //输出gc含量
-				// 	{
-				// 		for (int j = 0; j <sizeofx ; ++j) 
-				// 		{	
-				// 			if(count1[i][j]!=0)
-				// 			{
-				// 				if(gccount1[i][j]==0)
-				// 				{
-				// 					gzprintf(out_file1, "001\t");
-				// 				}
-				// 				else
-				// 				{
-				// 				int gcresult1 = round((static_cast<double>(gccount1[i][j]) / (count1[i][j] * kmerlength)) * 1000.0);
-				// 				gzprintf(out_file1, "%d\t", gcresult1); 
-				// 				}
-				// 			}
-				// 			else
-				// 			{
-				// 			gzprintf(out_file1, "000\t");
-				// 			}
-				// 		}
-				// 		gzprintf(out_file1, "\n");
-				// 	}
-				// 	gzprintf(out_file1, "\n");  
-                //     gzclose(out_file1); 
-// 以上代码是纠正GC含量图的代码
+
 if (s_option_exists)
 {
-            if (!kmer_data_base.OpenForRA(input_file_name4))
+            if (!kmer_data_base5.OpenForRA(input_file_name4))//这一行复制过来的本来是kmer_data_base而不是kmer_data_base5，这里kmer_data_base变成kmer_data_base5是为了符合3文件的逻辑
             {   
                 printf("OpenForRA0 failed");
                 print_info();
@@ -2279,12 +2183,14 @@ if (s_option_exists)
                 uint64 counter;
                 std::queue<uint32_t> num;
                 uint64 counter1;
+                uint64 counter5;
                 int y=0;
                 int sizeofY =xbox;
                     while (kmer_data_base1.ReadNextKmer(kmer_object, counter))
                     {
                     if (readtime%p==0)
-                    {
+                    {   bool is_kmer_found1=kmer_data_base5.CheckKmer(kmer_object, counter5);
+                        if(!is_kmer_found1){continue;}
                         bool is_kmer_found = kmer_data_base.CheckKmer(kmer_object, counter1);
                         
                         if (is_kmer_found) 
@@ -2300,27 +2206,8 @@ if (s_option_exists)
                                 y=sizeofY-1;
                             }
                             count2[0][y]++;
-                            // kmernumofbox[0][y]++;
-                            // if(location){appendWordToCell(array[0][y],kmer_object.to_string().c_str(),kmernumofbox[0][y],gen);}
                             countstep3[0][counter > 128 ? 129 : counter]++; 
-                            // int count_gc = 0;
-                            // std::string kmer_str = kmer_object.to_string();  // 提前保存字符串
-                            // for (char ch : kmer_str) {                      // 遍历已保存的字符串
-                            //     if (ch == 'G' || ch == 'g' || ch == 'C' || ch == 'c') {
-                            //         count_gc++;
-                            //     }
-                            // }
-                            // countof32[0][count_gc]+=counter;
-                            // countnumof32[0][count_gc]++;
-                            // gccount[0][y]+=count_gc;
-                            // if(counter>100)
-                            // {
-                            //     ki0[101]+=counter;
-                            // }
-                            // else
-                            // {
-                            //     ki0[counter]+=counter;
-                            // }
+
                         }
                     }
                     readtime++;
@@ -2331,8 +2218,9 @@ if (s_option_exists)
                         std::cout << "检查点3" << " 抵达成功.\n";
                          now0 = std::time(nullptr);
 std::cout << "当前时间3: " << std::ctime(&now0);
-            kmer_data_base.Close();
+            // kmer_data_base.Close();                                      //kmer_data_base是完整的组装数据
             kmer_data_base1.Close();
+            kmer_data_base5.Close();
             if (!kmer_data_base3.OpenForRA(input_file_name))
             {   
                 printf("OpenForRA failed");
@@ -2341,7 +2229,7 @@ std::cout << "当前时间3: " << std::ctime(&now0);
             }
             else
             {
-            if (!kmer_data_base4.OpenForListing(input_file_name4))
+            if (!kmer_data_base5.OpenForListing(input_file_name4))//这里复制过来本来是kmer_data_base4而不是kmer_data_base5，这里改成5是为了3文件的逻辑
             {   
                 printf("openforlisting failed");
                 print_info();
@@ -2377,13 +2265,15 @@ std::cout << "当前时间3: " << std::ctime(&now0);
                 uint64 counter;
                 std::queue<uint32_t> num; 
                 uint64 counter1;
+                uint64 counter5;
                 int x=0,y=0;
                 const int sizeofx = xbox;
                 const int sizeofy = ybox;
-                    while (kmer_data_base4.ReadNextKmer(kmer_object, counter))
+                    while (kmer_data_base5.ReadNextKmer(kmer_object, counter5))
                     {
                     if (readtime%p==0)
-                    {
+                    {   bool is_kmer_found1=kmer_data_base.CheckKmer(kmer_object, counter);
+                        if(is_kmer_found1){}
                         bool is_kmer_found = kmer_data_base3.CheckKmer(kmer_object, counter1);
                     // if((counter==1&&59<counter1&&counter1<91))
                     
@@ -2406,26 +2296,8 @@ std::cout << "当前时间3: " << std::ctime(&now0);
                                 y=sizeofy-1;    
                             }                   
                             count2[y][x]++;   
-                            // if(location){appendWordToCell(array[y][x],kmer_object.to_string().c_str(),kmernumofbox[y][x],gen);}
                             countstep3[counter < 513 ? counter : 512+findN(counter)-9][isInteger(counter1/(counter*1.0))? ((counter1/counter)<129? (counter1/counter):129): (floor(counter1/counter*1.0)<129? floor(counter1/counter*1.0):129)]++;
-                            // int count_gc = 0;
-                            // std::string kmer_str = kmer_object.to_string();  // 提前保存字符串
-                            // for (char ch : kmer_str) {                      // 遍历已保存的字符串
-                            //     if (ch == 'G' || ch == 'g' || ch == 'C' || ch == 'c') {
-                            //         count_gc++;
-                            //     }
-                            // }
-                            // countof32[y][count_gc]+=counter1;
-                            // countnumof32[y][count_gc]++;
-                            // gccount[y][x]+=count_gc;
-                            // if(counter1>100)
-                            // {
-                            //     ki[101]+=counter1;
-                            // }
-                            // else
-                            // {
-                            //     ki[counter1]+=counter1;
-                            // }
+
                         }           
                         else {
                             if (counter <=ystep*(ybox-2) )
@@ -2439,16 +2311,7 @@ std::cout << "当前时间3: " << std::ctime(&now0);
                             // if(location){appendWordToCell(array[y][0],kmer_object.to_string().c_str(),kmernumofbox[y][0],gen);}
                             
                             countstep3[counter < 513 ? counter : 512+findN(counter)-9][0]++;
-                            // int count_gc = 0;
-                            // std::string kmer_str = kmer_object.to_string();  // 提前保存字符串
-                            // for (char ch : kmer_str) {                      // 遍历已保存的字符串
-                            //     if (ch == 'G' || ch == 'g' || ch == 'C' || ch == 'c') {
-                            //         count_gc++;
-                            //     }
-                            // }
-                            // countof32[y][count_gc]+=0;
-                            // countnumof32[y][count_gc]++;
-                            // gccount[y][0]+=count_gc;
+
                         }
                     
                     }
@@ -2458,6 +2321,7 @@ std::cout << "当前时间3: " << std::ctime(&now0);
             }
             kmer_data_base3.Close();
             kmer_data_base4.Close();
+            kmer_data_base5.Close();
             std::cout << "检查点666" << " 抵达成功.\n";
              now0 = std::time(nullptr);
 std::cout << "当前时间2: " << std::ctime(&now0);
@@ -2471,33 +2335,13 @@ gzprintf(out_file, "%s\t#\t", filename_only.c_str());
             std::cout << "检查点6666" << " 抵达成功.\n";
              now0 = std::time(nullptr);
 std::cout << "当前时间2: " << std::ctime(&now0);
-    /*
-    KmerDistributionAnalyzer to get percentage list and Km
-    */   
-    // double best_mean = 0.0;
-    // double final_sigma = 0.0;
-    // bool row1_found = false;
+
     try {
         // 1. Create the analyzer with the data
         KmerDistributionAnalyzer analyzer(countstep3);
         // 2. Run the entire analysis process
         analyzer.runAnalysis();
-        // 3. Output Percentage List & Km
-        // gzprintf(out_file, "\n");
-        // const auto& results = analyzer.getPerRowAnalysisResults();
-        // for (const auto& res : results) {
-        //         // gzprintf(out_file, "%.2f\t", res.row_fitted_pct);      
-        //         if (res.row_index == 1) {
-        //                 best_mean = res.row_mean;
-        //                 final_sigma = res.row_sigma;
-        //                 // row1_found = true;
-        //         }
-        // }
-            // gzprintf(out_file, "\nKm= %.6f\t", analyzer.getGoodnessOfFitMetric()); 
-            // if(row1_found) {
-            //             // 这里可以根据需要调整，或者不输出，只用于内部计算
-            //             gzprintf(out_file, "\nμ:%.4f\tσ:%.4f\t", best_mean, final_sigma);
-            // }
+
             gzprintf(out_file, "Km:%.6f\t", analyzer.getGoodnessOfFitMetric()); 
     } catch (const std::exception& e) {
             std::cerr << "Error during Kmer Analysis: " << e.what() << std::endl;
@@ -2513,12 +2357,19 @@ std::cout << "当前时间2: " << std::ctime(&now0);
                 }
                 gzprintf(out_file, "\n");
 }
+for (size_t i = 0; i < fitted_models.size(); ++i) {
+    for (size_t k = 0; k < fitted_models[i].size(); ++k) {
+        gzprintf(out_file, "%.3f\t", fitted_models[i][k]);
+    }
+    gzprintf(out_file, "\n"); 
+}
 			deleteDirectory(folderName);
 			gzclose(out_file); 
 			kmer_data_base.Close();
 			kmer_data_base1.Close();
 			kmer_data_base3.Close();
 			kmer_data_base4.Close();
+            kmer_data_base5.Close();
 			return EXIT_SUCCESS; 
 }
 // -------------------------------------------------------------------------
